@@ -1,12 +1,31 @@
 import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createDrawerNavigator } from '@react-navigation/drawer';
 import * as React from 'react';
 import { StyleSheet } from 'react-native';
+import HomeScreen from '../container/home';
 import QRGeneratorScreen from '../container/qrGenerator';
 import ReportScreen from '../container/report';
 import SelectScreen from '../container/select';
 
 const Tab = createBottomTabNavigator();
+const Drawer = createDrawerNavigator();
+
+function DrawerScreen() {
+  return (
+    <Drawer.Navigator initialRouteName="Report" drawerPosition="right">
+      <Drawer.Screen
+        name="Report"
+        component={ReportScreen}
+        options={{
+          title: 'Laporan',
+          headerStyle: { ...styles.header },
+        }}
+      />
+      <Drawer.Screen name="Dashboard" component={HomeScreen} />
+    </Drawer.Navigator>
+  );
+}
 
 export default function App() {
   return (
@@ -18,9 +37,7 @@ export default function App() {
           let iconName;
 
           if (route.name === 'Select') {
-            iconName = focused
-              ? 'md-home'
-              : 'md-home-outline';
+            iconName = focused ? 'md-home' : 'md-home-outline';
           } else if (route.name === 'QR') {
             iconName = focused ? 'md-qr-code' : 'md-qr-code-outline';
           } else if (route.name === 'Report') {
@@ -54,10 +71,10 @@ export default function App() {
       />
       <Tab.Screen
         name="Report"
-        component={ReportScreen}
+        component={DrawerScreen}
         options={{
-          headerShown: true,
-          title: 'Report',
+          headerShown: false,
+          title: 'Laporan',
           headerStyle: { ...styles.header },
         }}
       />

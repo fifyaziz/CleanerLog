@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import {
-  ActivityIndicator, Dimensions,
+  ActivityIndicator,
+  Dimensions,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   ToastAndroid,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
 import Supabase from '../config/initSupabase';
 
@@ -128,7 +129,7 @@ export default function EntryScreen({ route, navigation }) {
 
       const final = dataFetch?.map((a, i) => ({ ...a, value: 2 }));
       setListKemudahan(final);
-      setLoading(false)
+      setLoading(false);
     };
 
     fetchData();
@@ -144,29 +145,29 @@ export default function EntryScreen({ route, navigation }) {
         <Text style={styles.title2}>Tarikh & Masa</Text>
         <Text style={styles.desc}>{today}</Text>
 
-        {loading && <ActivityIndicator style={{marginTop: 40}} color={"black"} size={50}/>}
+        {loading && <ActivityIndicator style={{ marginTop: 40 }} color={'black'} size={50} />}
         <View style={{ marginTop: 10 }}>
-          <View style={{ borderBottomWidth: 1,  marginTop: 10  }}>
-              <View style={{ flexDirection: 'row' }}>
-                <View
-                  style={{
-                    minWidth: minTitleBox,
-                    maxWidth: maxTitleBox,
-                    justifyContent: 'center',
-                    alignItems: 'flex-start',
-                  }}
-                >
-                  <Text style={{ textAlign: 'center', fontWeight: '700' }}>Kemudahan</Text>
-                </View>
-                <View style={{ maxWidth: 70, minWidth: 70, paddingHorizontal:10 }}>
+          <View style={{ borderBottomWidth: 1, marginTop: 10 }}>
+            <View style={{ flexDirection: 'row' }}>
+              <View
+                style={{
+                  minWidth: minTitleBox,
+                  maxWidth: maxTitleBox,
+                  justifyContent: 'center',
+                  alignItems: 'flex-start',
+                }}
+              >
+                <Text style={{ textAlign: 'center', fontWeight: '700' }}>Kemudahan</Text>
+              </View>
+              <View style={{ maxWidth: 70, minWidth: 70, paddingHorizontal: 10 }}>
                 <Text>Bersih</Text>
                 <Text>/Baik</Text>
-                </View>
-                <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+              </View>
+              <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                 <Text>Kerosakan</Text>
-                </View>
               </View>
             </View>
+          </View>
           {listKemudahan?.map((a, i) => (
             <View key={i} style={{ borderBottomWidth: 1 }}>
               <View style={{ flexDirection: 'row' }}>
@@ -180,7 +181,7 @@ export default function EntryScreen({ route, navigation }) {
                 >
                   <Text>{a.name}</Text>
                 </View>
-                <View style={{ maxWidth: 70, minWidth: 70, paddingHorizontal:10 }}>
+                <View style={{ maxWidth: 70, minWidth: 70, paddingHorizontal: 10 }}>
                   <TouchableOpacity onPress={() => handleRadioButton(i, 0)}>
                     <RadioButton type={0} value={a.value} />
                   </TouchableOpacity>

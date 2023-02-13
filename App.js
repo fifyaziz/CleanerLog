@@ -1,13 +1,18 @@
+import { createDrawerNavigator } from '@react-navigation/drawer';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as React from 'react';
+import 'react-native-gesture-handler';
 import EntryScreen from './src/container/entry';
 import HistoryScreen from './src/container/history';
+import HomeScreen from './src/container/home';
 import NameScreen from './src/container/name';
 import QRGeneratorScreen from './src/container/qrGenerator';
 import ScannerScreen from './src/container/qrScanner';
+import ReportDetailScreen from './src/container/reportDetails';
 import RoomScreen from './src/container/room';
 import TabNavigator from './src/navigation/tab';
+const Drawer = createDrawerNavigator();
 
 const Stack = createNativeStackNavigator();
 
@@ -26,7 +31,6 @@ function App() {
           name="Entry"
           component={EntryScreen}
           options={{
-            headerShown: true,
             title: 'Borang',
           }}
         />
@@ -35,7 +39,6 @@ function App() {
           name="Name"
           component={NameScreen}
           options={{
-            headerShown: true,
             title: 'Nama',
           }}
         />
@@ -45,8 +48,22 @@ function App() {
           name="Room"
           component={RoomScreen}
           options={{
-            headerShown: true,
             title: 'Bilik',
+          }}
+        />
+        <Stack.Screen
+          name="ReportDetails"
+          component={ReportDetailScreen}
+          options={{
+            title: 'Maklumat Laporan',
+          }}
+        />
+        <Stack.Screen
+          name="Home"
+          component={HomeScreen}
+          options={{
+            headerShown: true,
+            title: 'Dashboard',
           }}
         />
       </Stack.Navigator>

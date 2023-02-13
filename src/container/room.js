@@ -1,14 +1,15 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator, Dimensions,
+  ActivityIndicator,
+  Dimensions,
   FlatList,
   SafeAreaView,
   StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
 import Supabase from '../config/initSupabase';
 
@@ -40,7 +41,7 @@ export default function RoomScreen({ navigation }) {
     const fetchData = async () => {
       const { data: dataFetch, error: errorFetch } = await Supabase.from('room').select();
       setList(dataFetch);
-      setLoading(false)
+      setLoading(false);
     };
 
     fetchData().catch(console.error);
@@ -49,7 +50,7 @@ export default function RoomScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.text}>Senarai Bilik</Text>
-        {loading && <ActivityIndicator style={{marginTop: 40}} color={"black"} size={50}/>}
+      {loading && <ActivityIndicator style={{ marginTop: 40 }} color={'black'} size={50} />}
       <FlatList
         data={list}
         renderItem={({ item }) => (

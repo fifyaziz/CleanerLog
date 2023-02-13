@@ -1,6 +1,7 @@
+import * as React from 'react';
 import { Button, StyleSheet, Text, View } from 'react-native';
 
-function HomeScreen({ navigation }) {
+export default function HomeScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <Text>Open up App.js to start working on your app!</Text>
@@ -53,5 +54,3 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
-
-export default HomeScreen;

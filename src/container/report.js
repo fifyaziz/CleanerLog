@@ -1,22 +1,32 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Dimensions, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Dimensions,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import Supabase from '../config/initSupabase';
 
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
 const minTitleBox = parseInt((windowWidth * 50) / 100);
 
-export default function ReportScreen() {
+export default function ReportScreen({ navigation }) {
   const [listTop3, setListTop3] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const fetchData = async () => {
-    const { data: dataFetch } = await Supabase.from('entry').select()
-    .order('id', { ascending: false });
+    const { data: dataFetch } = await Supabase.from('entry')
+      .select()
+      .order('id', { ascending: false });
 
     setListTop3(dataFetch);
-    setLoading(false)
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -28,14 +38,11 @@ export default function ReportScreen() {
     fetchData();
   }, []);
 
-
   return (
-    <ScrollView refreshControl={
-      <RefreshControl refreshing={loading} onRefresh={onRefresh} />
-    }>
+    <ScrollView refreshControl={<RefreshControl refreshing={loading} onRefresh={onRefresh} />}>
       <View style={styles.container}>
         <Text style={styles.title}>Senarai Borang Terbaru</Text>
-        {loading && <ActivityIndicator style={{marginTop: 40}} color={"black"} size={50}/>}
+        {loading && <ActivityIndicator style={{ marginTop: 40 }} color={'black'} size={50} />}
         {listTop3?.map((a, i) => {
           const countObject = Object.keys(a).length - 7;
 
@@ -45,6 +52,10 @@ export default function ReportScreen() {
 
           const count = convert.filter((a) => a === false)?.length;
 
+          console.log('-');
+          console.log(convert);
+          console.log(count);
+          console.log(countObject);
           const final = (count / countObject) * 5;
 
           const date = new Date(a.datetime_created);
@@ -56,34 +67,36 @@ export default function ReportScreen() {
 
           return (
             <View key={i} style={styles.boxContainer}>
-              <View style={{ flexDirection: 'row' }}>
-                <View style={{ minWidth: minTitleBox }}>
-                  <Text>{a.name}</Text>
-                  <Text>
-                    Tingkat {a.floor} - Bilik {a.gender === 1 ? 'Lelaki' : 'Perempuan'}
-                  </Text>
-                  <Text>{`${day < 10 ? '0' + day : day}/${
-                    month < 10 ? '0' + month : month
-                  }/${year} ${hours < 10 ? '0' + hours : hours}:${
-                    minutes < 10 ? '0' + minutes : minutes
-                  }`}</Text>
+              <TouchableOpacity onPress={() => navigation.navigate('ReportDetails', a)}>
+                <View style={{ flexDirection: 'row' }}>
+                  <View style={{ minWidth: minTitleBox }}>
+                    <Text>{a.name}</Text>
+                    <Text>
+                      Tingkat {a.floor} - Bilik {a.gender === 1 ? 'Lelaki' : 'Perempuan'}
+                    </Text>
+                    <Text>{`${day < 10 ? '0' + day : day}/${
+                      month < 10 ? '0' + month : month
+                    }/${year} ${hours < 10 ? '0' + hours : hours}:${
+                      minutes < 10 ? '0' + minutes : minutes
+                    }`}</Text>
+                  </View>
+                  <View
+                    style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}
+                  >
+                    {Array(Math.round(final))
+                      .fill()
+                      .map((item, i) => (
+                        // <Ionicons key={i} name="md-star-sharp" size={24} color="gold" />
+                        <Ionicons key={i} name="md-star" size={24} color="gold" />
+                      ))}
+                    {Array(5 - Math.round(final))
+                      .fill()
+                      .map((item, i) => (
+                        <Ionicons key={i} name="md-star-outline" size={24} color="black" />
+                      ))}
+                  </View>
                 </View>
-                <View
-                  style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}
-                >
-                  {Array(parseInt(final))
-                    .fill()
-                    .map((item, i) => (
-                      // <Ionicons key={i} name="md-star-sharp" size={24} color="gold" />
-                      <Ionicons key={i} name="md-star" size={24} color="gold" />
-                    ))}
-                  {Array(5 - parseInt(final))
-                    .fill()
-                    .map((item, i) => (
-                      <Ionicons key={i} name="md-star-outline" size={24} color="black" />
-                    ))}
-                </View>
-              </View>
+              </TouchableOpacity>
             </View>
           );
         })}
@@ -94,10 +107,9 @@ export default function ReportScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    flex:1,
+    flex: 1,
     backgroundColor: '#fff',
     alignItems: 'center',
-    height:windowHeight
   },
   maintenance: {
     fontSize: 18,
@@ -110,13 +122,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'yellow',
   },
   title: {
-    marginTop:20,
+    marginTop: 20,
     fontSize: 14,
     fontWeight: '600',
     textDecorationLine: 'underline',
   },
   boxContainer: {
     borderBottomWidth: 1,
-    paddingVertical: 10
+    paddingVertical: 10,
   },
 });
