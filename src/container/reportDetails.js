@@ -68,7 +68,13 @@ export default function ReportDetailScreen({ route, navigation }) {
         <Text style={styles.title}>Bilik {routeData?.gender === '1' ? 'Lelaki' : 'Perempuan'}</Text>
 
         <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-          <View style={{ minWidth: '45%', paddingHorizontal: 15 }}>
+          <View
+            style={{
+              minWidth: '40%',
+              paddingHorizontal: 15,
+              alignItems: routeData.activeTab === 1 ? 'flex-start' : 'center',
+            }}
+          >
             <Text style={styles.title2}>Tarikh & Masa{'\n'}Dicuci</Text>
             <Text style={styles.desc}>{dateTimeFormat(routeData.datetime_created)}</Text>
           </View>
@@ -89,7 +95,7 @@ export default function ReportDetailScreen({ route, navigation }) {
             <Text style={styles.headerTable}>Bersin/Baik</Text>
             {listKemudahanBaik?.length > 0 ? (
               listKemudahanBaik?.map((a, i) => (
-                <View>
+                <View key={i} style={{ alignItems: 'flex-start' }}>
                   <Text style={styles.desc}>
                     {`${i + 1})`}
                     {a}
@@ -106,7 +112,7 @@ export default function ReportDetailScreen({ route, navigation }) {
             <Text style={styles.headerTable}>Kerosakan</Text>
             {listKemudahanRosak?.length > 0 ? (
               listKemudahanRosak?.map((a, i) => (
-                <View>
+                <View key={i} style={{ alignItems: 'flex-start' }}>
                   <Text style={styles.desc}>
                     {`${i + 1})`}
                     {a}
@@ -180,6 +186,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
     fontSize: fontSize,
     textAlign: 'center',
+    alignItems: 'flex-start',
   },
   textInput: {
     marginVertical: 10,
