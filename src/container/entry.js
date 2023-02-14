@@ -68,6 +68,7 @@ const convertText = (value) => {
 export default function EntryScreen({ route, navigation }) {
   const [remarks, setRemarks] = useState();
   const [listKemudahan, setListKemudahan] = useState();
+  const [payloadKemudahan, setPayloadKemudahan] = useState({});
   const [loading, setLoading] = useState(true);
   const routeData = route?.params;
 
@@ -86,33 +87,27 @@ export default function EntryScreen({ route, navigation }) {
   const [currentDate, setCurrentDate] = useState(date);
 
   const handleSubmit = async () => {
-    const { status, statusText, data, error } = await Supabase.from('entry').insert({
+    let temp = listKemudahan.map((a) => ({
+      [a.ref_name]: a.value,
+    }));
+    temp = temp.reduce((r, c) => Object.assign(r, c), {});
+    const final = {
+      ...temp,
       name: routeData.name,
       floor: routeData?.data?.floor,
       gender: routeData?.data?.gender,
       remarks: remarks,
       datetime_created: currentDate,
-      lantai: listKemudahan.find((o) => o.name === 'lantai')?.value,
-      dinding: listKemudahan.find((o) => o.name === 'dinding')?.value,
-      siling: listKemudahan.find((o) => o.name === 'siling')?.value,
-      bau: listKemudahan.find((o) => o.name === 'bau')?.value,
-      cermin: listKemudahan.find((o) => o.name === 'cermin')?.value,
-      singki: listKemudahan.find((o) => o.name === 'singki')?.value,
-      tap_air: listKemudahan.find((o) => o.name === 'tap air')?.value,
-      tong_sampah: listKemudahan.find((o) => o.name === 'tong sampah')?.value,
-      mangkuk_tandas: listKemudahan.find((o) => o.name === 'mangkuk tandas')?.value,
-      sabun: listKemudahan.find((o) => o.name === 'sabun')?.value,
-    });
+    };
+
+    const { status, statusText, data, error } = await Supabase.from('entry').insert(final);
     if (status === 201) {
-      console.log('success');
       ToastAndroid.show('Borang telah berjaya dihantar.', ToastAndroid.BOTTOM);
       navigation.navigate('TabNav');
     }
   };
 
   const handleRadioButton = async (value, type) => {
-    console.log(value);
-    console.log(type);
     const final = listKemudahan.map((a, i) => {
       if (i === value) {
         return { ...a, value: type };
@@ -197,7 +192,7 @@ export default function EntryScreen({ route, navigation }) {
         </View>
 
         <TextInput
-          placeholder="Remarks"
+          placeholder="Komen"
           style={styles.input}
           onChangeText={setRemarks}
           value={remarks}

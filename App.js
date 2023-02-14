@@ -3,9 +3,11 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as React from 'react';
 import 'react-native-gesture-handler';
+import DashboardScreen from './src/container/dashboard';
 import EntryScreen from './src/container/entry';
 import HistoryScreen from './src/container/history';
 import HomeScreen from './src/container/home';
+import LoginScreen from './src/container/login';
 import NameScreen from './src/container/name';
 import QRGeneratorScreen from './src/container/qrGenerator';
 import ScannerScreen from './src/container/qrScanner';
@@ -61,6 +63,22 @@ function App() {
         <Stack.Screen
           name="Home"
           component={HomeScreen}
+          options={{
+            headerShown: true,
+            title: 'Dashboard',
+          }}
+        />
+        <Stack.Screen
+          name="Login"
+          component={LoginScreen}
+          options={{
+            headerShown: true,
+            title: 'Login',
+          }}
+        />
+        <Stack.Screen
+          name="Dashboard"
+          component={DashboardScreen}
           options={{
             headerShown: true,
             title: 'Dashboard',

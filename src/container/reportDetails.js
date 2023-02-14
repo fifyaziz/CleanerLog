@@ -1,5 +1,17 @@
-import { useEffect, useState } from 'react';
-import { ActivityIndicator, Dimensions, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useEffect, useState } from 'react';
+import {
+  ActivityIndicator,
+  Alert,
+  Button,
+  Dimensions,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  ToastAndroid,
+  View,
+} from 'react-native';
+import { dateTimeFormat } from '../config';
 import Supabase from '../config/initSupabase';
 
 const windowWidth = Dimensions.get('window').width;
@@ -8,19 +20,31 @@ const titleSize = parseInt((windowWidth * 5) / 100);
 const title2Size = parseInt((windowWidth * 4) / 100);
 const fontSize = parseInt((windowWidth * 4) / 100);
 
-export default function ReportDetailScreen({ route }) {
+export default function ReportDetailScreen({ route, navigation }) {
   const routeData = route?.params;
 
   const [loading, setLoading] = useState(true);
   const [listKemudahanBaik, setListKemudahanBaik] = useState();
   const [listKemudahanRosak, setListKemudahanRosak] = useState();
 
-  const date = new Date(routeData.datetime_created);
-  const day = date.getDate();
-  const month = date.getMonth() + 1;
-  const year = date.getFullYear();
-  const hours = date.getHours();
-  const minutes = date.getMinutes();
+  const [approval, setApproval] = useState();
+
+  const handleSubmit = useCallback(async () => {
+    if (approval) {
+      const { status, error } = await Supabase.from('entry')
+        .update({ approval_remarks: approval, approved: true })
+        .eq('id', routeData.id);
+      console.log(status);
+      console.log(error);
+      if (status === 204) {
+        setApproval();
+        ToastAndroid.show('Borang telah berjaya dihantar.', ToastAndroid.BOTTOM);
+        navigation.navigate('Dashboard');
+      }
+    } else {
+      Alert.alert('Sila isi pengesahan');
+    }
+  }, [approval]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -43,12 +67,18 @@ export default function ReportDetailScreen({ route }) {
         <Text style={styles.header}>Maklumat Tingkat {routeData?.floor}</Text>
         <Text style={styles.title}>Bilik {routeData?.gender === '1' ? 'Lelaki' : 'Perempuan'}</Text>
 
-        <Text style={styles.title2}>Tarikh & Masa</Text>
-        <Text style={styles.desc}>{`${day < 10 ? '0' + day : day}/${
-          month < 10 ? '0' + month : month
-        }/${year} ${hours < 10 ? '0' + hours : hours}:${
-          minutes < 10 ? '0' + minutes : minutes
-        }`}</Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+          <View style={{ minWidth: '45%', paddingHorizontal: 15 }}>
+            <Text style={styles.title2}>Tarikh & Masa{'\n'}Dicuci</Text>
+            <Text style={styles.desc}>{dateTimeFormat(routeData.datetime_created)}</Text>
+          </View>
+          {routeData.activeTab === 1 && (
+            <View>
+              <Text style={styles.title2}>Tarikh & Masa{'\n'}Pengesahan</Text>
+              <Text style={styles.desc}>{dateTimeFormat(routeData.datetime_approval)}</Text>
+            </View>
+          )}
+        </View>
 
         <Text style={styles.title2}>Dicuci Oleh</Text>
         <Text style={styles.desc}>{routeData.name}</Text>
@@ -91,8 +121,30 @@ export default function ReportDetailScreen({ route }) {
           </View>
         </View>
 
-        <Text style={styles.title2}>Remarks</Text>
+        <Text style={styles.title2}>Komen</Text>
         <Text style={styles.desc}>{routeData.remarks}</Text>
+
+        {routeData.activeTab === 0 && (
+          <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+            <Text style={styles.title2}>Pengesahan</Text>
+            <TextInput
+              style={styles.textInput}
+              placeholder="Pengesahan"
+              value={approval}
+              onChangeText={setApproval}
+              multiline
+            />
+
+            <Button title="Hantar" onPress={handleSubmit} />
+          </View>
+        )}
+
+        {routeData.activeTab === 1 && (
+          <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+            <Text style={styles.title2}>Pengesahan</Text>
+            <Text style={styles.desc}>{routeData.approval_remarks}</Text>
+          </View>
+        )}
       </View>
     </ScrollView>
   );
@@ -122,9 +174,19 @@ const styles = StyleSheet.create({
     fontSize: title2Size,
     fontWeight: '600',
     textDecorationLine: 'underline',
+    textAlign: 'center',
   },
   desc: {
     marginTop: 2,
     fontSize: fontSize,
+    textAlign: 'center',
+  },
+  textInput: {
+    marginVertical: 10,
+    padding: 15,
+    borderWidth: 1,
+    borderRadius: 10,
+    width: windowWidth - 50,
+    minHeight: 60,
   },
 });

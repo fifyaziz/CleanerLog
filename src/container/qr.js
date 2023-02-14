@@ -13,16 +13,13 @@ export default function QRScreen() {
   let refQR = useRef();
 
   const callback = (dataURL) => {
-    console.log('data url', dataURL);
-    console.log('---');
-
     let shareImageBase64 = {
       title: 'QR Code Title',
       url: 'data:image/jpg;base64,' + dataURL,
       type: 'image/jpg',
       message: `Share Message QR Code`, //  for email
     };
-    Share.share(shareImageBase64).catch((error) => console.log(error));
+    Share.share(shareImageBase64).catch((error) => console.error(error));
     //   Sharing.shareAsync(shareImageBase64);
   };
 

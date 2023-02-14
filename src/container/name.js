@@ -16,7 +16,6 @@ const fontSize = parseInt((windowWidth * 4) / 100);
 export default function NameScreen({ route, navigation }) {
   const [name, setName] = useState();
   const routeData = route?.params?.data;
-  console.log('routeData name : ', routeData);
 
   const handleNext = () => {
     if (name) {

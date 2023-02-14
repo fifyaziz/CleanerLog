@@ -1,9 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator } from '@react-navigation/drawer';
+import { CommonActions } from '@react-navigation/native';
 import * as React from 'react';
-import { StyleSheet } from 'react-native';
-import HomeScreen from '../container/home';
+import { useCallback, useEffect } from 'react';
+import { AppState, StyleSheet, TouchableOpacity } from 'react-native';
+import DashboardScreen from '../container/dashboard';
 import QRGeneratorScreen from '../container/qrGenerator';
 import ReportScreen from '../container/report';
 import SelectScreen from '../container/select';
@@ -11,23 +14,70 @@ import SelectScreen from '../container/select';
 const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
 
-function DrawerScreen() {
+function DrawerScreen({ navigation }) {
+  const clearData = useCallback(async () => {
+    try {
+      await AsyncStorage.clear();
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: 'Select' }],
+        })
+      );
+    } catch (e) {
+      console.error('erroe', e);
+    }
+  }, [navigation]);
+
   return (
     <Drawer.Navigator initialRouteName="Report" drawerPosition="right">
       <Drawer.Screen
         name="Report"
         component={ReportScreen}
         options={{
-          title: 'Laporan',
+          title: 'Borang Harian',
           headerStyle: { ...styles.header },
         }}
       />
-      <Drawer.Screen name="Dashboard" component={HomeScreen} />
+      <Drawer.Screen
+        name="Dashboard"
+        component={DashboardScreen}
+        options={{
+          title: 'Dashboard',
+          headerStyle: { ...styles.header },
+          headerRight: () => (
+            <TouchableOpacity style={{ paddingHorizontal: 20 }} onPress={clearData}>
+              <Ionicons name="enter-outline" size={24} color="black" />
+            </TouchableOpacity>
+          ),
+        }}
+      />
     </Drawer.Navigator>
   );
 }
 
-export default function App() {
+export default function TapNav({ navigation }) {
+  useEffect(() => {
+    const appStateListener = AppState.addEventListener('change', async (nextAppState) => {
+      if (nextAppState === 'active') {
+        try {
+          await AsyncStorage.clear();
+          navigation.dispatch(
+            CommonActions.reset({
+              index: 0,
+              routes: [{ name: 'Select' }],
+            })
+          );
+        } catch (e) {
+          console.error('err', e);
+        }
+      }
+    });
+    return () => {
+      appStateListener?.remove();
+    };
+  }, []);
+
   return (
     <Tab.Navigator
       initialRouteName="Select"
@@ -40,7 +90,7 @@ export default function App() {
             iconName = focused ? 'md-home' : 'md-home-outline';
           } else if (route.name === 'QR') {
             iconName = focused ? 'md-qr-code' : 'md-qr-code-outline';
-          } else if (route.name === 'Report') {
+          } else if (route.name === 'Drawer') {
             iconName = focused ? 'document-text' : 'document-text-outline';
           }
 
@@ -70,11 +120,11 @@ export default function App() {
         }}
       />
       <Tab.Screen
-        name="Report"
+        name="Drawer"
         component={DrawerScreen}
         options={{
           headerShown: false,
-          title: 'Laporan',
+          title: 'Borang Harian',
           headerStyle: { ...styles.header },
         }}
       />

@@ -10,9 +10,10 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { dayDateFormat } from '../config';
 import Supabase from '../config/initSupabase';
 
-const windowHeight = Dimensions.get('window').height;
+const windowHeight = Dimensions.get('window').height - 189;
 const windowWidth = Dimensions.get('window').width;
 const minTitleBox = parseInt((windowWidth * 50) / 100);
 
@@ -20,9 +21,19 @@ export default function ReportScreen({ navigation }) {
   const [listTop3, setListTop3] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  var start = new Date();
+  // start.setDate(start.getDate() - 4);
+  start.setUTCHours(0, 0, 0, 0);
+
+  var end = new Date();
+  // end.setDate(end.getDate() - 4);
+  end.setUTCHours(23, 59, 59, 999);
+
   const fetchData = async () => {
     const { data: dataFetch } = await Supabase.from('entry')
       .select()
+      .gte('datetime_created', start.toISOString())
+      .lte('datetime_created', end.toISOString())
       .order('id', { ascending: false });
 
     setListTop3(dataFetch);
@@ -41,7 +52,8 @@ export default function ReportScreen({ navigation }) {
   return (
     <ScrollView refreshControl={<RefreshControl refreshing={loading} onRefresh={onRefresh} />}>
       <View style={styles.container}>
-        <Text style={styles.title}>Senarai Borang Terbaru</Text>
+        <Text style={styles.title}>Senarai Borang Hari Ini</Text>
+        <Text style={styles.subTitle}>{dayDateFormat(start)}</Text>
         {loading && <ActivityIndicator style={{ marginTop: 40 }} color={'black'} size={50} />}
         {listTop3?.map((a, i) => {
           const countObject = Object.keys(a).length - 7;
@@ -49,13 +61,7 @@ export default function ReportScreen({ navigation }) {
           const convert = Object.keys(a).map(function (key) {
             return a[key];
           });
-
           const count = convert.filter((a) => a === false)?.length;
-
-          console.log('-');
-          console.log(convert);
-          console.log(count);
-          console.log(countObject);
           const final = (count / countObject) * 5;
 
           const date = new Date(a.datetime_created);
@@ -81,19 +87,23 @@ export default function ReportScreen({ navigation }) {
                     }`}</Text>
                   </View>
                   <View
-                    style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}
+                    style={{
+                      justifyContent: 'center',
+                      alignItems: 'flex-start',
+                      paddingLeft: 20,
+                    }}
                   >
-                    {Array(Math.round(final))
-                      .fill()
-                      .map((item, i) => (
-                        // <Ionicons key={i} name="md-star-sharp" size={24} color="gold" />
-                        <Ionicons key={i} name="md-star" size={24} color="gold" />
-                      ))}
-                    {Array(5 - Math.round(final))
-                      .fill()
-                      .map((item, i) => (
-                        <Ionicons key={i} name="md-star-outline" size={24} color="black" />
-                      ))}
+                    {count > 0 && (
+                      <Text>
+                        <Ionicons name="thumbs-up-outline" size={24} color="green" /> - {count}{' '}
+                      </Text>
+                    )}
+                    {countObject - count > 0 && (
+                      <Text>
+                        <Ionicons name="thumbs-down-outline" size={24} color="red" /> -{' '}
+                        {countObject - count}
+                      </Text>
+                    )}
                   </View>
                 </View>
               </TouchableOpacity>
@@ -123,12 +133,24 @@ const styles = StyleSheet.create({
   },
   title: {
     marginTop: 20,
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '600',
     textDecorationLine: 'underline',
+  },
+  subTitle: {
+    fontSize: 14,
+    marginBottom: 10,
   },
   boxContainer: {
     borderBottomWidth: 1,
     paddingVertical: 10,
+    width: windowWidth,
+    alignItems: 'center',
+  },
+  login: {
+    marginTop: 20,
+    fontSize: 14,
+    fontWeight: '600',
+    textDecorationLine: 'underline',
   },
 });
