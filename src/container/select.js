@@ -1,4 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
+import { useState } from 'react';
 import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const windowWidth = Dimensions.get('window').width;
@@ -8,21 +11,48 @@ const textSize = parseInt((windowWidth * 10) / 100);
 const descSize = parseInt((windowWidth * 4) / 100);
 
 export default function SelectScreen({ navigation }) {
+  const [name, getName] = useState();
+
+  useFocusEffect(() => {
+    const fetchData = async () => {
+      try {
+        const getData = await AsyncStorage.getItem('@storage_checkin');
+        getName(getData);
+      } catch (e) {
+        console.log('eufs', e);
+      }
+    };
+
+    fetchData();
+  });
+
   return (
     <View style={styles.container}>
       <Text style={styles.text}>Sila Pilih</Text>
       <Text style={styles.desc}>cara untuk mengisi borang</Text>
 
       <View style={styles.flexContainer}>
-        <TouchableOpacity
-          style={styles.touchableOpacity}
-          onPress={() => navigation.navigate('Room')}
-        >
-          <View style={styles.buttonContainer}>
-            <Ionicons name="clipboard-outline" size={iconSize} color="green" />
-            <Text style={styles.textButton}>Pilihan Manual</Text>
-          </View>
-        </TouchableOpacity>
+        {!name ? (
+          <TouchableOpacity
+            style={styles.touchableOpacity}
+            onPress={() => navigation.navigate('Name')}
+          >
+            <View style={styles.buttonContainer}>
+              <Ionicons name="finger-print-outline" size={iconSize} color="green" />
+              <Text style={styles.textButton}>Log Masuk</Text>
+            </View>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            style={styles.touchableOpacity}
+            onPress={() => navigation.navigate('Room')}
+          >
+            <View style={styles.buttonContainer}>
+              <Ionicons name="clipboard-outline" size={iconSize} color="green" />
+              <Text style={styles.textButton}>Pilihan Manual</Text>
+            </View>
+          </TouchableOpacity>
+        )}
         <View style={styles.buttonContainer}>
           <Text style={styles.text} />
         </View>

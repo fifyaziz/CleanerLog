@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -72,6 +73,7 @@ export default function EntryScreen({ route, navigation }) {
   const [loading, setLoading] = useState(true);
   const routeData = route?.params;
 
+  const dateAPI = new Date();
   const date = new Date();
   const day = date.getDate();
   const month = date.getMonth() + 1;
@@ -84,25 +86,43 @@ export default function EntryScreen({ route, navigation }) {
       hours < 10 ? '0' + hours : hours
     }:${minutes < 10 ? '0' + minutes : minutes}`
   );
-  const [currentDate, setCurrentDate] = useState(date);
 
   const handleSubmit = async () => {
     let temp = listKemudahan.map((a) => ({
       [a.ref_name]: a.value,
     }));
     temp = temp.reduce((r, c) => Object.assign(r, c), {});
+
+    let getName = '';
+    let getDate = '';
+    try {
+      getName = await AsyncStorage.getItem('@storage_checkin');
+      getDate = await AsyncStorage.getItem('@storage_checkin_date');
+    } catch (e) {
+      console.error('euen', e);
+    }
+
+    console.log('getDate asdhjcia ', getDate);
+
     const final = {
       ...temp,
-      name: routeData.name,
+      name: getName,
+      datetime_checkin: getDate,
       floor: routeData?.data?.floor,
       gender: routeData?.data?.gender,
       remarks: remarks,
-      datetime_created: currentDate,
+      datetime_created: dateAPI,
     };
 
     const { status, statusText, data, error } = await Supabase.from('entry').insert(final);
     if (status === 201) {
       ToastAndroid.show('Borang telah berjaya dihantar.', ToastAndroid.BOTTOM);
+      try {
+        await AsyncStorage.removeItem('@storage_checkin');
+        await AsyncStorage.removeItem('@storage_checkin_date');
+      } catch (e) {
+        console.error('euen', e);
+      }
       navigation.navigate('TabNav');
     }
   };

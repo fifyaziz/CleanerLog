@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEffect, useState } from 'react';
 import {
   Dimensions,
   StyleSheet,
@@ -15,6 +16,7 @@ const fontSize = parseInt((windowWidth * 4) / 100);
 
 export default function NameScreen({ route, navigation }) {
   const [name, setName] = useState();
+  const [nameStored, setNameStored] = useState(false);
   const routeData = route?.params?.data;
 
   const handleNext = () => {
@@ -25,16 +27,70 @@ export default function NameScreen({ route, navigation }) {
     }
   };
 
+  const handleCheckIn = async () => {
+    try {
+      await AsyncStorage.setItem('@storage_checkin', name);
+      await AsyncStorage.setItem('@storage_checkin_date', new Date().toISOString());
+      navigation.navigate('Select');
+    } catch (e) {
+      console.error('ehci', e);
+    }
+  };
+
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        // await AsyncStorage.removeItem('@storage_checkin');
+        const getName = await AsyncStorage.getItem('@storage_checkin');
+        console.log('getName', getName);
+        setNameStored(Boolean(getName));
+        setName(getName);
+      } catch (e) {
+        console.error('euen', e);
+      }
+    };
+    getData();
+  }, []);
+
+  console.log(new Date().toISOString());
+
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Sila Isikan Nama</Text>
-      <TextInput placeholder="Nama" style={styles.input} onChangeText={setName} value={name} />
+      {nameStored ? (
+        <View>
+          <Text style={styles.text}>Selamat Kembali</Text>
+          <Text
+            style={{
+              textAlign: 'center',
+              fontSize: fontSize + 10,
+              fontWeight: '900',
+              paddingTop: 10,
+              paddingBottom: 30,
+            }}
+          >
+            {name}
+          </Text>
+        </View>
+      ) : (
+        <View>
+          <Text style={styles.text}>Sila Isikan Nama</Text>
+          <TextInput placeholder="Nama" style={styles.input} onChangeText={setName} value={name} />
+        </View>
+      )}
 
-      <TouchableOpacity style={styles.newButton} onPress={() => handleNext()}>
-        <Text style={[styles.sectionDescription, { color: '#fff', fontWeight: '900' }]}>
-          Seterusnya
-        </Text>
-      </TouchableOpacity>
+      {nameStored ? (
+        <TouchableOpacity style={styles.newButton} onPress={() => handleNext()}>
+          <Text style={[styles.sectionDescription, { color: '#fff', fontWeight: '900' }]}>
+            Seterusnya
+          </Text>
+        </TouchableOpacity>
+      ) : (
+        <TouchableOpacity style={styles.newButton} onPress={() => handleCheckIn()}>
+          <Text style={[styles.sectionDescription, { color: '#fff', fontWeight: '900' }]}>
+            Check In
+          </Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
@@ -48,7 +104,7 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: headerSize,
-    fontWeight: '600',
+    fontWeight: '400',
     padding: 10,
     marginHorizontal: 10,
   },

@@ -67,7 +67,7 @@ export default function ReportDetailScreen({ route, navigation }) {
         <Text style={styles.header}>Maklumat Tingkat {routeData?.floor}</Text>
         <Text style={styles.title}>Bilik {routeData?.gender === '1' ? 'Lelaki' : 'Perempuan'}</Text>
 
-        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+        {/* <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
           <View
             style={{
               minWidth: '40%',
@@ -84,6 +84,22 @@ export default function ReportDetailScreen({ route, navigation }) {
               <Text style={styles.desc}>{dateTimeFormat(routeData.datetime_approval)}</Text>
             </View>
           )}
+        </View> */}
+        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+          <View
+            style={{
+              minWidth: '40%',
+              paddingHorizontal: 15,
+              alignItems: routeData.activeTab === 1 ? 'flex-start' : 'center',
+            }}
+          >
+            <Text style={styles.title2}>Tarikh & Masa{'\n'}Log Masuk</Text>
+            <Text style={styles.desc}>{dateTimeFormat(routeData.datetime_checkin)}</Text>
+          </View>
+          <View>
+            <Text style={styles.title2}>Tarikh & Masa{'\n'}Mencuci</Text>
+            <Text style={styles.desc}>{dateTimeFormat(routeData.datetime_created)}</Text>
+          </View>
         </View>
 
         <Text style={styles.title2}>Dicuci Oleh</Text>

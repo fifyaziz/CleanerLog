@@ -9,7 +9,7 @@ import {
   TextInput,
   ToastAndroid,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import Supabase from '../config/initSupabase';
@@ -79,6 +79,35 @@ export default function QRGeneratorScreen() {
             });
           }
         }
+      }
+    },
+    [QRvalue, radioButton]
+  );
+
+  const handleShare = useCallback(
+    async () => {
+      if (!QRvalue) {
+        ToastAndroid.show('Sila masukkan nombor tingkat bangunan', ToastAndroid.TOP);
+        return;
+      } else if (!radioButton) {
+        ToastAndroid.show('Sila pilih jantina', ToastAndroid.TOP);
+        return;
+      } else {
+        ref.current.toDataURL(async (data) => {
+          setQRBase64(data);
+
+          const filename = FileSystem.documentDirectory + 'QRCode.png'; //create new png file
+          FileSystem.writeAsStringAsync(filename, QRBase64, {
+            //write image on png file above
+            encoding: FileSystem.EncodingType.Base64,
+          });
+
+          const options = {
+            mimeType: 'image/png',
+            dialogTitle: 'This is the Title?',
+          };
+          Sharing.shareAsync(filename, options);
+        });
       }
     },
     [QRvalue, radioButton]
@@ -170,7 +199,7 @@ export default function QRGeneratorScreen() {
             <TouchableOpacity style={styles.newButton} onPress={() => handleButton('save')}>
               <Text style={[styles.sectionDescription]}>Simpan Kod QR</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.newButton} onPress={() => handleButton('share')}>
+            <TouchableOpacity style={styles.newButton} onPress={() => handleShare()}>
               <Text style={[styles.sectionDescription]}>Kongsi Kod QR</Text>
             </TouchableOpacity>
           </View>

@@ -17,7 +17,7 @@ const Drawer = createDrawerNavigator();
 function DrawerScreen({ navigation }) {
   const clearData = useCallback(async () => {
     try {
-      await AsyncStorage.clear();
+      await AsyncStorage.removeItem('@storage_key');
       navigation.dispatch(
         CommonActions.reset({
           index: 0,
@@ -61,7 +61,7 @@ export default function TapNav({ navigation }) {
     const appStateListener = AppState.addEventListener('change', async (nextAppState) => {
       if (nextAppState === 'active') {
         try {
-          await AsyncStorage.clear();
+          await AsyncStorage.removeItem('@storage_key');
           navigation.dispatch(
             CommonActions.reset({
               index: 0,
