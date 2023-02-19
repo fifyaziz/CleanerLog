@@ -1,6 +1,8 @@
 import * as FileSystem from 'expo-file-system';
+import * as MediaLibrary from 'expo-media-library';
+import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import {
   Dimensions,
   ScrollView,
@@ -9,7 +11,7 @@ import {
   TextInput,
   ToastAndroid,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import Supabase from '../config/initSupabase';
@@ -20,10 +22,10 @@ const windowWidth = Dimensions.get('window').width;
 const fontSize = parseInt((windowWidth * 4) / 100);
 
 export default function QRGeneratorScreen() {
-  const [QRvalue, setQRValue] = React.useState('');
+  const [QRvalue, setQRValue] = React.useState('1');
   const [QRBase64, setQRBase64] = React.useState('');
 
-  const [radioButton, setRadioButton] = React.useState('');
+  const [radioButton, setRadioButton] = React.useState('lelaki');
   const ref = React.useRef();
 
   const handleButton = useCallback(
@@ -40,9 +42,12 @@ export default function QRGeneratorScreen() {
           .eq('floor', QRvalue)
           .eq('gender', radioButton === 'lelaki' ? 1 : 2);
 
+        if (errorFetch) {
+          console.log('errorFetch lama :', errorFetch);
+        }
         if (dataFetch?.length > 0) {
           ToastAndroid.show('Kod QR telah wujud.!', ToastAndroid.TOP);
-        } else {
+        } else if (dataFetch?.length === 0) {
           const { status, error } = await Supabase.from('room').insert({
             floor: QRvalue,
             gender: radioButton === 'lelaki' ? 1 : 2,
@@ -53,7 +58,7 @@ export default function QRGeneratorScreen() {
               setQRBase64(data);
 
               const filename = FileSystem.documentDirectory + 'QRCode.png'; //create new png file
-              FileSystem.writeAsStringAsync(filename, QRBase64, {
+              FileSystem.writeAsStringAsync(filename, data, {
                 //write image on png file above
                 encoding: FileSystem.EncodingType.Base64,
               });
@@ -84,34 +89,31 @@ export default function QRGeneratorScreen() {
     [QRvalue, radioButton]
   );
 
-  const handleShare = useCallback(
-    async () => {
-      if (!QRvalue) {
-        ToastAndroid.show('Sila masukkan nombor tingkat bangunan', ToastAndroid.TOP);
-        return;
-      } else if (!radioButton) {
-        ToastAndroid.show('Sila pilih jantina', ToastAndroid.TOP);
-        return;
-      } else {
-        ref.current.toDataURL(async (data) => {
-          setQRBase64(data);
+  const handleShare = useCallback(async () => {
+    if (!QRvalue) {
+      ToastAndroid.show('Sila masukkan nombor tingkat bangunan', ToastAndroid.TOP);
+      return;
+    } else if (!radioButton) {
+      ToastAndroid.show('Sila pilih jantina', ToastAndroid.TOP);
+      return;
+    } else {
+      ref.current.toDataURL(async (data) => {
+        setQRBase64(data);
 
-          const filename = FileSystem.documentDirectory + 'QRCode.png'; //create new png file
-          FileSystem.writeAsStringAsync(filename, QRBase64, {
-            //write image on png file above
-            encoding: FileSystem.EncodingType.Base64,
-          });
-
-          const options = {
-            mimeType: 'image/png',
-            dialogTitle: 'This is the Title?',
-          };
-          Sharing.shareAsync(filename, options);
+        const filename = FileSystem.documentDirectory + 'QRCode.png'; //create new png file
+        FileSystem.writeAsStringAsync(filename, data, {
+          //write image on png file above
+          encoding: FileSystem.EncodingType.Base64,
         });
-      }
-    },
-    [QRvalue, radioButton]
-  );
+
+        const options = {
+          mimeType: 'image/png',
+          dialogTitle: 'This is the Title?',
+        };
+        Sharing.shareAsync(filename, options);
+      });
+    }
+  }, [QRvalue, radioButton]);
 
   const RadioButton = useCallback(
     ({ type }) => {
@@ -156,6 +158,57 @@ export default function QRGeneratorScreen() {
     [radioButton]
   );
 
+  const handleToPDF = useCallback(async () => {
+    if (!QRvalue) {
+      ToastAndroid.show('Sila masukkan nombor tingkat bangunan', ToastAndroid.TOP);
+      return;
+    } else if (!radioButton) {
+      ToastAndroid.show('Sila pilih jantina', ToastAndroid.TOP);
+      return;
+    } else {
+      ref.current.toDataURL(async (data) => {
+        const html =
+          data &&
+          `
+        <html>
+          <head>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+          </head>
+          <body style="text-align: center;">
+            <h1 style="font-size: 50px; font-family: Helvetica Neue; font-weight: normal;">
+              Tingkat ${QRvalue}
+            </h1>
+            <h2 style="font-size: 50px; font-family: Helvetica Neue; font-weight: normal;">
+              Tandas ${radioButton}
+            </h2>
+            <img
+            src="data:image/gif;base64, ${data}"
+              />
+          </body>
+        </html>
+        `;
+
+        const { uri } = await Print.printToFileAsync({ html, base64: true });
+
+        const pdfName = `${FileSystem.documentDirectory}QRCode_${QRvalue}_${radioButton}.pdf`;
+        await FileSystem.moveAsync({
+          from: uri,
+          to: pdfName,
+        });
+
+        Sharing.shareAsync(pdfName, { UTI: '.pdf', mimeType: 'application/pdf' });
+      });
+    }
+  }, [QRvalue, radioButton]);
+
+  useEffect(() => {
+    MediaLibrary.requestPermissionsAsync().then(({ granted }) => {
+      if (!granted) {
+        Alert.alert('Permission required', 'Please allow the app to save photos to your device.');
+      }
+    });
+  }, []);
+
   return (
     <ScrollView style={styles.scrollView}>
       <View style={styles.container}>
@@ -181,7 +234,7 @@ export default function QRGeneratorScreen() {
         </View>
 
         <QRCode
-          size={windowWidth - 50}
+          size={100}
           value={
             JSON.stringify({
               floor: QRvalue,
@@ -193,6 +246,10 @@ export default function QRGeneratorScreen() {
           getRef={ref}
           enableLinearGradient={true}
         />
+
+        <TouchableOpacity style={styles.newButton} onPress={() => handleToPDF()}>
+          <Text style={[styles.sectionDescription]}>Kongsi PDF</Text>
+        </TouchableOpacity>
 
         <View style={styles.sectionContainer}>
           <View style={{ flexDirection: 'row' }}>

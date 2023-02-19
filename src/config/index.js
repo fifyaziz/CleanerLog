@@ -25,6 +25,19 @@ export const dayDateFormat = (datetime) => {
   }/${year}`;
 };
 
+export const timeFormat = (date) => {
+  console.log(date);
+  var tempDate = new Date(date) || new Date();
+  var hours = tempDate.getHours();
+  var minutes = tempDate.getMinutes();
+  var ampm = hours >= 12 ? 'pm' : 'am';
+  hours = hours % 12;
+  hours = hours ? hours : 12; // the hour '0' should be '12'
+  minutes = minutes < 10 ? '0' + minutes : minutes;
+  var strTime = hours + ':' + minutes + ' ' + ampm;
+  return strTime;
+};
+
 export const dateTimeAPIFormat = (datetime) => {
   const date = new Date(datetime);
   const day = date.getDate();

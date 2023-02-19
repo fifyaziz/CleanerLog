@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as React from 'react';
 import 'react-native-gesture-handler';
 import DashboardScreen from './src/container/dashboard';
+import EditQRScreen from './src/container/editQr';
 import EntryScreen from './src/container/entry';
 import HistoryScreen from './src/container/history';
 import HomeScreen from './src/container/home';
@@ -82,6 +83,14 @@ function App() {
           options={{
             headerShown: true,
             title: 'Dashboard',
+          }}
+        />
+        <Stack.Screen
+          name="EditQR"
+          component={EditQRScreen}
+          options={{
+            headerShown: true,
+            title: 'Kemaskini Maklumat Tandas',
           }}
         />
       </Stack.Navigator>

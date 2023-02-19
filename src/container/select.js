@@ -16,6 +16,7 @@ export default function SelectScreen({ navigation }) {
   useFocusEffect(() => {
     const fetchData = async () => {
       try {
+        // await AsyncStorage.removeItem('@storage_checkin');
         const getData = await AsyncStorage.getItem('@storage_checkin');
         getName(getData);
       } catch (e) {
@@ -28,8 +29,8 @@ export default function SelectScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Sila Pilih</Text>
-      <Text style={styles.desc}>cara untuk mengisi borang</Text>
+      <Text style={styles.text}>{name ? 'Check Out' : 'Check In'}</Text>
+      <Text style={styles.desc}>Sila pilih cara untuk {name ? 'log keluar' : 'log masuk'}</Text>
 
       <View style={styles.flexContainer}>
         {!name ? (
@@ -61,8 +62,15 @@ export default function SelectScreen({ navigation }) {
           onPress={() => navigation.navigate('QR_Scanner')}
         >
           <View style={styles.buttonContainer}>
-            <Ionicons name="camera-outline" size={iconSize} color="green" />
-            <Text style={styles.textButton}>Mengimbas{'\n'}Kod QR</Text>
+            {name ? (
+              <Ionicons name="camera-reverse" size={iconSize} color="green" />
+            ) : (
+              <Ionicons name="camera-outline" size={iconSize} color="green" />
+            )}
+            <Text style={styles.textButton}>
+              Mengimbas {'\n'}
+              {name ? 'Keluar' : 'Masuk'}
+            </Text>
           </View>
         </TouchableOpacity>
       </View>
@@ -103,13 +111,16 @@ const styles = StyleSheet.create({
     color: 'green',
   },
   touchableOpacity: {
-    padding: '8%',
-    borderRadius: '8%',
+    padding: '10%',
     marginTop: 10,
-    paddingTop: 20,
-    paddingBottom: 20,
     borderRadius: 10,
     borderWidth: 1,
     borderColor: '#68a0cf',
+
+    shadowColor: 'lightgrey', // IOS
+    shadowOffset: { height: 1, width: 1 }, // IOS
+    shadowOpacity: 0.6, // IOS
+    shadowRadius: 1, //IOS
+    elevation: 1, // Android
   },
 });

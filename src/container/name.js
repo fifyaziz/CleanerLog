@@ -28,12 +28,16 @@ export default function NameScreen({ route, navigation }) {
   };
 
   const handleCheckIn = async () => {
-    try {
-      await AsyncStorage.setItem('@storage_checkin', name);
-      await AsyncStorage.setItem('@storage_checkin_date', new Date().toISOString());
-      navigation.navigate('Select');
-    } catch (e) {
-      console.error('ehci', e);
+    if (name) {
+      try {
+        await AsyncStorage.setItem('@storage_checkin', name);
+        await AsyncStorage.setItem('@storage_checkin_date', new Date().toISOString());
+        navigation.navigate('Select');
+      } catch (e) {
+        console.error('ehci', e);
+      }
+    } else {
+      ToastAndroid.show('Sila masukkan nama', ToastAndroid.TOP);
     }
   };
 
@@ -42,7 +46,6 @@ export default function NameScreen({ route, navigation }) {
       try {
         // await AsyncStorage.removeItem('@storage_checkin');
         const getName = await AsyncStorage.getItem('@storage_checkin');
-        console.log('getName', getName);
         setNameStored(Boolean(getName));
         setName(getName);
       } catch (e) {
@@ -51,8 +54,6 @@ export default function NameScreen({ route, navigation }) {
     };
     getData();
   }, []);
-
-  console.log(new Date().toISOString());
 
   return (
     <View style={styles.container}>

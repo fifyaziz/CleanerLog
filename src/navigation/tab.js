@@ -5,11 +5,12 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import { CommonActions } from '@react-navigation/native';
 import * as React from 'react';
 import { useCallback, useEffect } from 'react';
-import { AppState, StyleSheet, TouchableOpacity } from 'react-native';
+import { AppState, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import CreateQRScreen from '../container/createQr';
 import DashboardScreen from '../container/dashboard';
-import QRGeneratorScreen from '../container/qrGenerator';
 import ReportScreen from '../container/report';
 import SelectScreen from '../container/select';
+import SenaraiTandasScreen from '../container/senaraiTandas';
 
 const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
@@ -52,6 +53,22 @@ function DrawerScreen({ navigation }) {
           ),
         }}
       />
+      <Drawer.Screen
+        name="CreateQr"
+        component={CreateQRScreen}
+        options={{
+          title: 'Cipta Kod QR',
+          headerStyle: { ...styles.header },
+        }}
+      />
+      <Drawer.Screen
+        name="SenaraiTandas"
+        component={SenaraiTandasScreen}
+        options={{
+          title: 'Senarai Tandas',
+          headerStyle: { ...styles.header },
+        }}
+      />
     </Drawer.Navigator>
   );
 }
@@ -83,9 +100,39 @@ export default function TapNav({ navigation }) {
       initialRouteName="Select"
       screenOptions={({ route }) => ({
         headerShown: false,
+        headerTitleStyle: {
+          fontSize: 25,
+          fontWeight: '700',
+          height: 90,
+          paddingTop: 30,
+        },
+        tabBarStyle: {
+          height: 60,
+        },
+        tabBarLabel: ({ focused, color }) => {
+          let screenName = '';
+          let result = '';
+          if (route.name === 'Select') {
+            screenName = 'Home';
+          } else if (route.name === 'Drawer') {
+            screenName = 'Borang Harian';
+          }
+          return (
+            <Text
+              style={{
+                fontSize: focused ? 20 : 18,
+                fontWeight: focused ? '900' : 'normal',
+                paddingHorizontal: 10,
+                marginBottom: 10,
+                color: color,
+              }}
+            >
+              {screenName}
+            </Text>
+          );
+        },
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
-
           if (route.name === 'Select') {
             iconName = focused ? 'md-home' : 'md-home-outline';
           } else if (route.name === 'QR') {
@@ -94,28 +141,25 @@ export default function TapNav({ navigation }) {
             iconName = focused ? 'document-text' : 'document-text-outline';
           }
 
-          // You can return any component that you like here!
-          return <Ionicons name={iconName} size={size} color={color} />;
+          return (
+            <Ionicons
+              name={iconName}
+              style={{ position: focused ? 'absolute' : 'relative', top: focused ? -20 : 0 }}
+              size={focused ? size + 20 : size}
+              color={color}
+            />
+          );
         },
         tabBarActiveTintColor: 'tomato',
         tabBarInactiveTintColor: 'gray',
       })}
     >
       <Tab.Screen
-        name="QR"
-        component={QRGeneratorScreen}
-        options={{
-          headerShown: true,
-          title: 'Menjana Kod QR',
-          headerStyle: { ...styles.header },
-        }}
-      />
-      <Tab.Screen
         name="Select"
         component={SelectScreen}
         options={{
           headerShown: true,
-          title: 'Home',
+          title: 'MTC Cleaner Monitoring',
           headerStyle: { ...styles.header },
         }}
       />
@@ -136,5 +180,11 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: 'white',
     borderBottomWidth: 2,
+  },
+  headerHome: {
+    fontSize: 80,
+    fontWeight: '700',
+    borderBottomWidth: 2,
+    height: 120,
   },
 });
