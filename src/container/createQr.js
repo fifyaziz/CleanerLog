@@ -102,12 +102,12 @@ export default function CreateQRScreen() {
         ToastAndroid.show('Maklumat Tandas berjaya disimpan.!', ToastAndroid.BOTTOM);
       }
       if (error) {
-        console.log('error', error);
+        console.error('error', error);
       }
     }
 
     if (errorFetch) {
-      console.log('errorFetch', errorFetch);
+      console.error('errorFetch', errorFetch);
     }
   }, [
     inputTingkat,
@@ -415,11 +415,19 @@ export default function CreateQRScreen() {
         >
           <Text style={{ paddingBottom: 10 }}>Kod QR</Text>
           <QRCode
-            size={100}
+            size={200}
             value={
               JSON.stringify({
+                name: inputNama,
                 floor: inputTingkat,
+                building: pickerMenara,
                 gender: radioJantina,
+                first_in: masaMasukPertama,
+                first_out: masaKeluarPertama,
+                second_in: masaMasukKedua,
+                second_out: masaKeluarKedua,
+                third_in: masaMasukKetiga,
+                third_out: masaKeluarKetiga,
               }) || 'NA'
             }
             logoSize={60}

@@ -20,7 +20,7 @@ export default function SelectScreen({ navigation }) {
         const getData = await AsyncStorage.getItem('@storage_checkin');
         getName(getData);
       } catch (e) {
-        console.log('eufs', e);
+        console.error('eufs', e);
       }
     };
 
@@ -29,7 +29,7 @@ export default function SelectScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>{name ? 'Check Out' : 'Check In'}</Text>
+      <Text style={styles.text}>{name ? 'Imbas Log Keluar' : 'Imbas Log Masuk'}</Text>
       <Text style={styles.desc}>Sila pilih cara untuk {name ? 'log keluar' : 'log masuk'}</Text>
 
       <View style={styles.flexContainer}>

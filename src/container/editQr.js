@@ -95,7 +95,7 @@ export default function EditQRScreen({ route }) {
       ToastAndroid.show('Maklumat Tandas berjaya dikemaskini.!', ToastAndroid.BOTTOM);
     }
     if (error) {
-      console.log('error', error);
+      console.error('error', error);
     }
   }, [
     inputTingkat,

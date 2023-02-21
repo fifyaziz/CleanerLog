@@ -102,8 +102,6 @@ export default function EntryScreen({ route, navigation }) {
       console.error('euen', e);
     }
 
-    console.log('getDate asdhjcia ', getDate);
-
     const final = {
       ...temp,
       name: getName,

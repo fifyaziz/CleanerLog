@@ -2,29 +2,32 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import { CommonActions } from '@react-navigation/native';
 import * as React from 'react';
 import { useCallback, useEffect } from 'react';
-import { AppState, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { AppState, Dimensions, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import CreateQRScreen from '../container/createQr';
 import DashboardScreen from '../container/dashboard';
+import NameScreen from '../container/name';
+import ScannerScreen from '../container/qrScanner';
 import ReportScreen from '../container/report';
-import SelectScreen from '../container/select';
 import SenaraiTandasScreen from '../container/senaraiTandas';
 
 const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
 
+const windowWidth = Dimensions.get('window').width;
+const textSize = parseInt((windowWidth * 5) / 100);
+
 function DrawerScreen({ navigation }) {
   const clearData = useCallback(async () => {
     try {
       await AsyncStorage.removeItem('@storage_key');
-      navigation.dispatch(
-        CommonActions.reset({
-          index: 0,
-          routes: [{ name: 'Select' }],
-        })
-      );
+      // navigation.dispatch(
+      //   CommonActions.reset({
+      //     index: 0,
+      //     routes: [{ name: 'Select' }],
+      //   })
+      // );
     } catch (e) {
       console.error('erroe', e);
     }
@@ -79,12 +82,12 @@ export default function TapNav({ navigation }) {
       if (nextAppState === 'active') {
         try {
           await AsyncStorage.removeItem('@storage_key');
-          navigation.dispatch(
-            CommonActions.reset({
-              index: 0,
-              routes: [{ name: 'Select' }],
-            })
-          );
+          // navigation.dispatch(
+          //   CommonActions.reset({
+          //     index: 0,
+          //     routes: [{ name: 'Select' }],
+          //   })
+          // );
         } catch (e) {
           console.error('err', e);
         }
@@ -97,7 +100,7 @@ export default function TapNav({ navigation }) {
 
   return (
     <Tab.Navigator
-      initialRouteName="Select"
+      initialRouteName="Scanner"
       screenOptions={({ route }) => ({
         headerShown: false,
         headerTitleStyle: {
@@ -114,15 +117,18 @@ export default function TapNav({ navigation }) {
           let result = '';
           if (route.name === 'Select') {
             screenName = 'Home';
+          } else if (route.name === 'TabName') {
+            screenName = 'Manual';
+          } else if (route.name === 'Scanner') {
+            screenName = 'Imbas Kamera';
           } else if (route.name === 'Drawer') {
             screenName = 'Borang Harian';
           }
           return (
             <Text
               style={{
-                fontSize: focused ? 20 : 18,
+                fontSize: focused ? textSize : textSize - 6,
                 fontWeight: focused ? '900' : 'normal',
-                paddingHorizontal: 10,
                 marginBottom: 10,
                 color: color,
               }}
@@ -135,10 +141,14 @@ export default function TapNav({ navigation }) {
           let iconName;
           if (route.name === 'Select') {
             iconName = focused ? 'md-home' : 'md-home-outline';
+          } else if (route.name === 'TabName') {
+            iconName = focused ? 'document-text' : 'document-text-outline';
           } else if (route.name === 'QR') {
             iconName = focused ? 'md-qr-code' : 'md-qr-code-outline';
+          } else if (route.name === 'Scanner') {
+            iconName = focused ? 'md-camera' : 'md-camera-outline';
           } else if (route.name === 'Drawer') {
-            iconName = focused ? 'document-text' : 'document-text-outline';
+            iconName = focused ? 'clipboard' : 'clipboard-outline';
           }
 
           return (
@@ -155,8 +165,17 @@ export default function TapNav({ navigation }) {
       })}
     >
       <Tab.Screen
-        name="Select"
-        component={SelectScreen}
+        name="TabName"
+        component={NameScreen}
+        options={{
+          headerShown: true,
+          title: 'MTC Cleaner Monitoring',
+          headerStyle: { ...styles.header },
+        }}
+      />
+      <Tab.Screen
+        name="Scanner"
+        component={ScannerScreen}
         options={{
           headerShown: true,
           title: 'MTC Cleaner Monitoring',

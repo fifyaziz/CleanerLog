@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { CommonActions, useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useCallback, useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import Supabase from '../config/initSupabase';
@@ -12,12 +12,12 @@ export default function ModalLogin() {
 
   const handleClose = () => {
     setOpenModal(!openModal);
-    navigation.dispatch(
-      CommonActions.reset({
-        index: 0,
-        routes: [{ name: 'Report' }],
-      })
-    );
+    // navigation.dispatch(
+    //   CommonActions.reset({
+    //     index: 0,
+    //     routes: [{ name: 'Report' }],
+    //   })
+    // );
   };
 
   const handlePress = useCallback(async () => {

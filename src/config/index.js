@@ -26,7 +26,6 @@ export const dayDateFormat = (datetime) => {
 };
 
 export const timeFormat = (date) => {
-  console.log(date);
   var tempDate = new Date(date) || new Date();
   var hours = tempDate.getHours();
   var minutes = tempDate.getMinutes();

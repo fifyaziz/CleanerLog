@@ -43,7 +43,7 @@ export default function QRGeneratorScreen() {
           .eq('gender', radioButton === 'lelaki' ? 1 : 2);
 
         if (errorFetch) {
-          console.log('errorFetch lama :', errorFetch);
+          console.error('errorFetch lama :', errorFetch);
         }
         if (dataFetch?.length > 0) {
           ToastAndroid.show('Kod QR telah wujud.!', ToastAndroid.TOP);

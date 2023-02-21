@@ -34,8 +34,7 @@ export default function ReportDetailScreen({ route, navigation }) {
       const { status, error } = await Supabase.from('entry')
         .update({ approval_remarks: approval, approved: true })
         .eq('id', routeData.id);
-      console.log(status);
-      console.log(error);
+      console.error(error);
       if (status === 204) {
         setApproval();
         ToastAndroid.show('Borang telah berjaya dihantar.', ToastAndroid.BOTTOM);
