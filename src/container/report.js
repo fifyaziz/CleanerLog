@@ -1,4 +1,3 @@
-import { Ionicons } from '@expo/vector-icons';
 import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -10,7 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { dayDateFormat } from '../config';
+import { dayDateFormat, timeFormat } from '../config';
 import Supabase from '../config/initSupabase';
 
 const windowHeight = Dimensions.get('window').height - 189;
@@ -30,10 +29,10 @@ export default function ReportScreen({ navigation }) {
   end.setUTCHours(23, 59, 59, 999);
 
   const fetchData = async () => {
-    const { data: dataFetch } = await Supabase.from('entry')
+    const { data: dataFetch } = await Supabase.from('check_in_out')
       .select()
-      .gte('datetime_created', start.toISOString())
-      .lte('datetime_created', end.toISOString())
+      .gte('check_in', start.toISOString())
+      .lte('check_in', end.toISOString())
       .order('id', { ascending: false });
 
     setListTop3(dataFetch);
@@ -66,46 +65,18 @@ export default function ReportScreen({ navigation }) {
             const count = convert.filter((a) => a === false)?.length;
             const final = (count / countObject) * 5;
 
-            const date = new Date(a.datetime_created);
-            const day = date.getDate();
-            const month = date.getMonth() + 1;
-            const year = date.getFullYear();
-            const hours = date.getHours();
-            const minutes = date.getMinutes();
-
             return (
               <View key={i} style={styles.boxContainer}>
                 <TouchableOpacity onPress={() => navigation.navigate('ReportDetails', a)}>
                   <View style={{ flexDirection: 'row' }}>
                     <View style={{ minWidth: minTitleBox }}>
                       <Text>{a.name}</Text>
-                      <Text>
-                        Tingkat {a.floor} - Bilik {a.gender === 1 ? 'Lelaki' : 'Perempuan'}
-                      </Text>
-                      <Text>{`${day < 10 ? '0' + day : day}/${
-                        month < 10 ? '0' + month : month
-                      }/${year} ${hours < 10 ? '0' + hours : hours}:${
-                        minutes < 10 ? '0' + minutes : minutes
+                      <Text style={{ textTransform: 'capitalize' }}>{`Tandas ${
+                        a.toilet_name
+                      } Tingkat ${a.floor} - Bilik ${
+                        a.gender === 1 ? 'Lelaki' : 'Perempuan'
                       }`}</Text>
-                    </View>
-                    <View
-                      style={{
-                        justifyContent: 'center',
-                        alignItems: 'flex-start',
-                        paddingLeft: 20,
-                      }}
-                    >
-                      {count > 0 && (
-                        <Text>
-                          <Ionicons name="thumbs-up-outline" size={24} color="green" /> - {count}{' '}
-                        </Text>
-                      )}
-                      {countObject - count > 0 && (
-                        <Text>
-                          <Ionicons name="thumbs-down-outline" size={24} color="red" /> -{' '}
-                          {countObject - count}
-                        </Text>
-                      )}
+                      <Text>{`${timeFormat(a.check_in)} - ${timeFormat(a.check_out)}`}</Text>
                     </View>
                   </View>
                 </TouchableOpacity>

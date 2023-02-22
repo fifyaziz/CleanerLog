@@ -1,15 +1,14 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useCallback, useEffect, useState } from 'react';
 import {
-    Dimensions,
-    ScrollView,
-    StyleSheet,
-    Text, ToastAndroid,
-    TouchableOpacity,
-    View
+  Dimensions,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { dateTimeFormat } from '../config';
-import Supabase from '../config/initSupabase';
 
 const windowWidth = Dimensions.get('window').width;
 const headerSize = parseInt((windowWidth * 6) / 100);
@@ -18,76 +17,66 @@ const title2Size = parseInt((windowWidth * 4) / 100);
 const fontSize = parseInt((windowWidth * 4) / 100);
 
 export default function ReportStaffScreen({ route, navigation }) {
-  const routeData = route?.params;
+  const routeData = typeof route?.params === 'string' ? JSON.parse(route?.params) : route?.params;
 
-  const [dateCheckIn, setDateCheckIn ] = useState()
-
-  const handleSubmit = useCallback(async () => {
-      const { status, error } = await Supabase.from('entry')
-        .update({ approved: true })
-        .eq('id', routeData.id);
-      console.error(error);
-      if (status === 204) {
-        setApproval();
-        ToastAndroid.show('Borang telah berjaya dihantar.', ToastAndroid.BOTTOM);
-        navigation.navigate('Dashboard');
-      }
-  }, []);
-
-  useEffect(()=>{
-    const getData = async () => {
-        try {
-          const getDate = await AsyncStorage.getItem('@storage_checkin_date');
-          setDateCheckIn(getDate);
-        } catch (e) {
-          console.error('euen', e);
-        }
-      };
-      getData();
-  },[])
+  const handleBack = async () => {
+    await AsyncStorage.clear();
+    navigation.navigate('Scanner');
+  };
 
   return (
     <ScrollView>
       <View style={styles.container}>
         <View style={{ justifyContent: 'center', alignItems: 'center' }}>
           <Text style={styles.header}>
-            Tandas {JSON.parse(routeData).name}{' '}
-            {JSON.parse(routeData).gender == 1 ? 'Lelaki' : 'Perempuan'}
+            {`Tandas ${routeData.toilet_name}${routeData.gender == 1 ? ' Lelaki' : ' Perempuan'}`}
           </Text>
           <Text style={styles.header}>
-            {JSON.parse(routeData).building} Tingkat {JSON.parse(routeData).floor}
+            {routeData.building} Tingkat {routeData.floor}
           </Text>
           <View style={{ width: 50, height: 10, borderBottomWidth: 1 }}></View>
         </View>
 
-          <View
-            style={{
-              minWidth: '40%',
-              paddingHorizontal: 15,
-              alignItems: routeData.activeTab === 1 ? 'flex-start' : 'center',
-            }}
-          >
-            <Text style={styles.title2}>Tarikh & Masa{'\n'}Log Masuk</Text>
-            <Text style={styles.desc}>{dateTimeFormat(dateCheckIn)}</Text>
-          </View>
+        <Text style={styles.title2}>Dicuci Oleh</Text>
+        <Text style={styles.desc}>{routeData.name}</Text>
 
-      <View>
-        <TouchableOpacity
+        <View
           style={{
-            marginTop: 20,
-            borderRadius: 10,
-            backgroundColor: 'deepskyblue',
-            justifyContent: 'center',
-            alignItems: 'center',
-            paddingVertical: 10,
-            paddingHorizontal: 20,
+            minWidth: '40%',
+            paddingHorizontal: 15,
+            alignItems: routeData.activeTab === 1 ? 'flex-start' : 'center',
           }}
-          onPress={() => handleSubmit()}
         >
-          <Text style={{ color: 'white', fontWeight: '500' }}>Simpan</Text>
-        </TouchableOpacity>
-      </View>
+          <Text style={styles.title2}>Tarikh &amp; Masa{'\n'}Log Masuk</Text>
+          <Text style={styles.desc}>{dateTimeFormat(routeData.check_in)}</Text>
+          <Image
+            source={{ uri: `data:image/jpeg;base64,${routeData.photo_in}` }}
+            style={{ height: 200, width: 250 }}
+          />
+        </View>
 
+        <View
+          style={{
+            minWidth: '40%',
+            paddingHorizontal: 15,
+            alignItems: routeData.activeTab === 1 ? 'flex-start' : 'center',
+          }}
+        >
+          <Text style={styles.title2}>Tarikh &amp; Masa{'\n'}Log Keluar</Text>
+          <Text style={styles.desc}>{dateTimeFormat(routeData.check_out)}</Text>
+          <Image
+            source={{ uri: `data:image/jpeg;base64,${routeData.photo_out}` }}
+            style={{ height: 200, width: 250 }}
+          />
+        </View>
+
+        <View>
+          <TouchableOpacity style={styles.newButton} onPress={handleBack}>
+            <Text style={[styles.sectionDescription, { color: '#fff', fontWeight: '900' }]}>
+              Kembali ke Imbas Kamera
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </ScrollView>
   );
@@ -97,9 +86,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+    justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: 20,
-    paddingBottom: 40,
+    paddingVertical: '20%',
   },
   header: {
     fontSize: titleSize,
@@ -110,7 +99,6 @@ const styles = StyleSheet.create({
   headerTable: {
     fontSize: title2Size,
     fontWeight: '600',
-    textDecorationLine: 'underline',
     paddingBottom: 10,
   },
   title: { marginTop: 0, fontSize: titleSize, fontWeight: '600' },
@@ -118,7 +106,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
     fontSize: title2Size,
     fontWeight: '600',
-    textDecorationLine: 'underline',
     textAlign: 'center',
   },
   desc: {
@@ -134,5 +121,16 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     width: windowWidth - 50,
     minHeight: 60,
+  },
+  newButton: {
+    marginTop: 40,
+    backgroundColor: 'deepskyblue',
+    paddingVertical: 10,
+    paddingHorizontal: '12%',
+    borderRadius: 10,
+  },
+  sectionDescription: {
+    fontSize: 16,
+    fontWeight: '400',
   },
 });

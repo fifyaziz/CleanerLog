@@ -430,8 +430,9 @@ export default function CreateQRScreen() {
                 third_out: masaKeluarKetiga,
               }) || 'NA'
             }
+            logo={require('../../assets/logo.png')}
             logoSize={60}
-            backgroundColor="white"
+            logoBackgroundColor="deepskyblue"
             getRef={refQR}
             enableLinearGradient={true}
           />

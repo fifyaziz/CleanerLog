@@ -1,8 +1,9 @@
+import { FontAwesome5 } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { useEffect, useState } from 'react';
-import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const windowWidth = Dimensions.get('window').width;
 const headerSize = parseInt((windowWidth * 7) / 100);
@@ -14,15 +15,25 @@ export default function ScannerScreen() {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const [isRetryButton, setIsRetryButton] = useState(false);
 
   const [name, setName] = useState();
 
-  const handleBarCodeScanned = ({ data }) => {
+  const handleBarCodeScanned = async ({ data }) => {
     setScanned(false);
     setHasPermission(null);
-    if(name){
-      navigation.navigate('ReportStaff', data);
-    } else{
+    if (name) {
+      try {
+        const getData = await AsyncStorage.getItem('@storage_data');
+        if (JSON.parse(getData)?.name === JSON.parse(data).name) {
+          navigation.navigate('Name', data);
+        } else {
+          Alert.alert('Kod QR tidak sama');
+        }
+      } catch (e) {
+        console.error('eufs', e);
+      }
+    } else {
       navigation.navigate('Name', data);
     }
   };
@@ -36,10 +47,20 @@ export default function ScannerScreen() {
   }, [hasPermission]);
 
   useEffect(() => {
-    if (!isVisible) {
+    if (isVisible) {
+      const timer = setTimeout(() => setIsRetryButton(true), 5000);
+      return () => clearTimeout(timer);
+    } else {
       setIsVisible(!isVisible);
     }
   }, [isVisible]);
+
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     setIsVisible(true);
+  //     return () => setIsVisible(false);
+  //   }, [])
+  // );
 
   useFocusEffect(() => {
     const fetchData = async () => {
@@ -54,13 +75,6 @@ export default function ScannerScreen() {
 
     fetchData();
   });
-
-  if (hasPermission === null) {
-    return <Text>Requesting for camera permission</Text>;
-  }
-  if (hasPermission === false) {
-    return <Text>No access to camera</Text>;
-  }
 
   return (
     <View style={styles.container}>
@@ -90,19 +104,24 @@ export default function ScannerScreen() {
           <Button title={'Imbas Semula'} onPress={() => setScanned(false)} />
         </View>
       )} */}
-      <View style={styles.scanAgain}>
-        <TouchableOpacity
-          style={{
-            justifyContent: 'center',
-            alignItems: 'center',
-            paddingVertical: 10,
-            paddingHorizontal: 20,
-          }}
-          onPress={() => setIsVisible(!isVisible)}
-        >
-          <Text style={{ color: 'white', fontWeight: '500' }}>Imbas Semula</Text>
-        </TouchableOpacity>
-      </View>
+      {isRetryButton && (
+        <View style={styles.scanAgain}>
+          <TouchableOpacity
+            style={{
+              justifyContent: 'center',
+              alignItems: 'center',
+              paddingVertical: 10,
+              paddingHorizontal: 10,
+            }}
+            onPress={() => {
+              setIsRetryButton(false);
+              setIsVisible(!isVisible);
+            }}
+          >
+            <FontAwesome5 name="redo" size={25} color="deepskyblue" />
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 }
@@ -116,13 +135,15 @@ const styles = StyleSheet.create({
     paddingVertical: 30,
   },
   scanAgain: {
-    marginTop: 20,
-    borderRadius: 10,
-    backgroundColor: 'deepskyblue',
+    marginTop: -70,
+    borderRadius: 100,
+    backgroundColor: 'white',
+    borderWidth: 1,
+    borderColor: 'deepskyblue',
   },
   header: {
     minWidth: '8%',
-    fontSize: headerSize-3,
+    fontSize: headerSize - 3,
     fontWeight: '500',
   },
   name: {

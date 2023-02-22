@@ -1,8 +1,10 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as React from 'react';
 import 'react-native-gesture-handler';
+import CameraScreen from './src/component/camera';
 import CleaningScreen from './src/container/cleaning';
 import DashboardScreen from './src/container/dashboard';
 import EditQRScreen from './src/container/editQr';
@@ -17,11 +19,26 @@ import ReportDetailScreen from './src/container/reportDetails';
 import ReportStaffScreen from './src/container/reportStaff';
 import RoomScreen from './src/container/room';
 import TabNavigator from './src/navigation/tab';
+
 const Drawer = createDrawerNavigator();
 
 const Stack = createNativeStackNavigator();
 
 function App() {
+  const [isLogin, setIsLogin] = React.useState(false);
+
+  React.useEffect(() => {
+    const getData = async () => {
+      try {
+        const getName = await AsyncStorage.getItem('@storage_checkin');
+        setIsLogin(Boolean(getName));
+      } catch (e) {
+        console.error('ufa', e);
+      }
+    };
+    getData();
+  }, []);
+
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="TabNav">
@@ -44,7 +61,7 @@ function App() {
           name="Name"
           component={NameScreen}
           options={{
-            title: 'Nama Pekerja',
+            title: isLogin ? 'Log Keluar' : 'Log Masuk',
           }}
         />
         <Stack.Screen name="QR_Scanner" component={ScannerScreen} />
@@ -106,8 +123,16 @@ function App() {
           name="ReportStaff"
           component={ReportStaffScreen}
           options={{
+            headerShown: false,
+            title: 'Sinopsis Laporan',
+          }}
+        />
+        <Stack.Screen
+          name="Camera"
+          component={CameraScreen}
+          options={{
             headerShown: true,
-            title: 'Laporan Semasa',
+            title: 'Kamera',
           }}
         />
       </Stack.Navigator>

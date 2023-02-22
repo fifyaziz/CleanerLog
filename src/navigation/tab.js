@@ -4,19 +4,18 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import * as React from 'react';
 import { useCallback, useEffect } from 'react';
-import { AppState, Dimensions, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { AppState, Dimensions, StyleSheet, Text } from 'react-native';
 import CreateQRScreen from '../container/createQr';
-import DashboardScreen from '../container/dashboard';
-import NameScreen from '../container/name';
 import ScannerScreen from '../container/qrScanner';
 import ReportScreen from '../container/report';
+import RoomScreen from '../container/room';
 import SenaraiTandasScreen from '../container/senaraiTandas';
 
 const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
 
 const windowWidth = Dimensions.get('window').width;
-const textSize = parseInt((windowWidth * 5) / 100);
+const textSize = parseInt((windowWidth * 4) / 100);
 
 function DrawerScreen({ navigation }) {
   const clearData = useCallback(async () => {
@@ -43,7 +42,7 @@ function DrawerScreen({ navigation }) {
           headerStyle: { ...styles.header },
         }}
       />
-      <Drawer.Screen
+      {/* <Drawer.Screen
         name="Dashboard"
         component={DashboardScreen}
         options={{
@@ -55,7 +54,7 @@ function DrawerScreen({ navigation }) {
             </TouchableOpacity>
           ),
         }}
-      />
+      /> */}
       <Drawer.Screen
         name="CreateQr"
         component={CreateQRScreen}
@@ -104,8 +103,8 @@ export default function TapNav({ navigation }) {
       screenOptions={({ route }) => ({
         headerShown: false,
         headerTitleStyle: {
-          fontSize: 25,
-          fontWeight: '700',
+          fontSize: 20,
+          fontWeight: '600',
           height: 90,
           paddingTop: 30,
         },
@@ -117,7 +116,7 @@ export default function TapNav({ navigation }) {
           let result = '';
           if (route.name === 'Select') {
             screenName = 'Home';
-          } else if (route.name === 'TabName') {
+          } else if (route.name === 'TabRoom') {
             screenName = 'Manual';
           } else if (route.name === 'Scanner') {
             screenName = 'Imbas Kamera';
@@ -141,7 +140,7 @@ export default function TapNav({ navigation }) {
           let iconName;
           if (route.name === 'Select') {
             iconName = focused ? 'md-home' : 'md-home-outline';
-          } else if (route.name === 'TabName') {
+          } else if (route.name === 'TabRoom') {
             iconName = focused ? 'document-text' : 'document-text-outline';
           } else if (route.name === 'QR') {
             iconName = focused ? 'md-qr-code' : 'md-qr-code-outline';
@@ -165,8 +164,8 @@ export default function TapNav({ navigation }) {
       })}
     >
       <Tab.Screen
-        name="TabName"
-        component={NameScreen}
+        name="TabRoom"
+        component={RoomScreen}
         options={{
           headerShown: true,
           title: 'MTC Cleaner Monitoring',
@@ -199,11 +198,5 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: 'white',
     borderBottomWidth: 2,
-  },
-  headerHome: {
-    fontSize: 80,
-    fontWeight: '700',
-    borderBottomWidth: 2,
-    height: 120,
   },
 });

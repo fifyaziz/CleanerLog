@@ -1,9 +1,9 @@
 import {
-    Entypo,
-    FontAwesome5,
-    Ionicons,
-    MaterialCommunityIcons,
-    MaterialIcons
+  Entypo,
+  FontAwesome5,
+  Ionicons,
+  MaterialCommunityIcons,
+  MaterialIcons,
 } from '@expo/vector-icons';
 import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -51,9 +51,10 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontWeight: 'bold',
     padding: 10,
+    margin: 20,
   },
   newButton: {
-    marginTop: 20,
+    marginTop: 40,
     backgroundColor: 'deepskyblue',
     paddingVertical: 10,
     paddingHorizontal: '12%',

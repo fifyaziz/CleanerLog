@@ -241,6 +241,7 @@ export default function QRGeneratorScreen() {
               gender: radioButton === 'lelaki' ? 1 : 2,
             }) || 'NA'
           }
+          logo={require('../../assets/logo.png')}
           logoSize={60}
           backgroundColor="white"
           getRef={ref}

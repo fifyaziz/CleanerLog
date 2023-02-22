@@ -4,6 +4,7 @@ import {
   Alert,
   Button,
   Dimensions,
+  Image,
   ScrollView,
   StyleSheet,
   Text,
@@ -84,6 +85,10 @@ export default function ReportDetailScreen({ route, navigation }) {
             </View>
           )}
         </View> */}
+
+        <Text style={styles.title2}>Dicuci Oleh</Text>
+        <Text style={styles.desc}>{routeData.name}</Text>
+
         <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
           <View
             style={{
@@ -93,19 +98,12 @@ export default function ReportDetailScreen({ route, navigation }) {
             }}
           >
             <Text style={styles.title2}>Tarikh & Masa{'\n'}Log Masuk</Text>
-            <Text style={styles.desc}>{dateTimeFormat(routeData.datetime_checkin)}</Text>
-          </View>
-          <View>
-            <Text style={styles.title2}>Tarikh & Masa{'\n'}Mencuci</Text>
-            <Text style={styles.desc}>{dateTimeFormat(routeData.datetime_created)}</Text>
+            <Text style={styles.desc}>{dateTimeFormat(routeData.check_in)}</Text>
           </View>
         </View>
 
-        <Text style={styles.title2}>Dicuci Oleh</Text>
-        <Text style={styles.desc}>{routeData.name}</Text>
-
         {loading && <ActivityIndicator style={{ marginTop: 40 }} color={'black'} size={50} />}
-        <View style={{ flexDirection: 'row', marginTop: 20 }}>
+        {/* <View style={{ flexDirection: 'row', marginTop: 20 }}>
           <View style={{ minWidth: '45%', paddingHorizontal: 15 }}>
             <Text style={styles.headerTable}>Bersin/Baik</Text>
             {listKemudahanBaik?.length > 0 ? (
@@ -140,10 +138,24 @@ export default function ReportDetailScreen({ route, navigation }) {
               </View>
             )}
           </View>
-        </View>
+        </View> */}
 
-        <Text style={styles.title2}>Komen</Text>
-        <Text style={styles.desc}>{routeData.remarks}</Text>
+        {/* <Text style={styles.title2}>Komen</Text>
+        <Text style={styles.desc}>{routeData.remarks}</Text> */}
+
+        <Image
+          source={{ uri: `data:image/jpeg;base64,${routeData.photo_in}` }}
+          style={{ height: 200, width: 250 }}
+        />
+
+        <View>
+          <Text style={styles.title2}>Tarikh & Masa{'\n'}Mencuci</Text>
+          <Text style={styles.desc}>{dateTimeFormat(routeData.check_out)}</Text>
+        </View>
+        <Image
+          source={{ uri: `data:image/jpeg;base64,${routeData.photo_out}` }}
+          style={{ height: 200, width: 250 }}
+        />
 
         {routeData.activeTab === 0 && (
           <View style={{ justifyContent: 'center', alignItems: 'center' }}>

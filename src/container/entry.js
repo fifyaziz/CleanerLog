@@ -99,7 +99,7 @@ export default function EntryScreen({ route, navigation }) {
       getName = await AsyncStorage.getItem('@storage_checkin');
       getDate = await AsyncStorage.getItem('@storage_checkin_date');
     } catch (e) {
-      console.error('euen', e);
+      console.error('ehs', e);
     }
 
     const final = {
@@ -119,7 +119,7 @@ export default function EntryScreen({ route, navigation }) {
         await AsyncStorage.removeItem('@storage_checkin');
         await AsyncStorage.removeItem('@storage_checkin_date');
       } catch (e) {
-        console.error('euen', e);
+        console.error('ehs1', e);
       }
       navigation.navigate('TabNav');
     }
