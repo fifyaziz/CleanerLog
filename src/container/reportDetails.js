@@ -64,8 +64,14 @@ export default function ReportDetailScreen({ route, navigation }) {
   return (
     <ScrollView>
       <View style={styles.container}>
-        <Text style={styles.header}>Maklumat Tingkat {routeData?.floor}</Text>
-        <Text style={styles.title}>Bilik {routeData?.gender === '1' ? 'Lelaki' : 'Perempuan'}</Text>
+        <Text style={styles.header}>
+          Maklumat Tandas
+          {routeData?.gender === '1' ? ' (L)' : ' (P)'}
+        </Text>
+        <Text style={styles.header}>
+          {routeData?.toilet_name} {routeData?.building}
+        </Text>
+        {routeData?.floor && <Text style={styles.title}>Tingkat {routeData?.floor}</Text>}
 
         {/* <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
           <View
@@ -194,6 +200,7 @@ const styles = StyleSheet.create({
   header: {
     fontSize: headerSize,
     fontWeight: '600',
+    textTransform: 'capitalize',
   },
   headerTable: {
     fontSize: title2Size,

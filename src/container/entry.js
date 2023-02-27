@@ -152,9 +152,7 @@ export default function EntryScreen({ route, navigation }) {
     <ScrollView>
       <View style={styles.container}>
         <Text style={styles.header}>Maklumat Tingkat {routeData?.data?.floor}</Text>
-        <Text style={styles.title}>
-          Bilik {routeData?.data?.gender === '1' ? 'Lelaki' : 'Perempuan'}
-        </Text>
+        <Text style={styles.title}>Tandas {routeData?.data?.gender === '1' ? '(L)' : '(P)'}</Text>
         <Text style={styles.title2}>Tarikh & Masa</Text>
         <Text style={styles.desc}>{today}</Text>
 

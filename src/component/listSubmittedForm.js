@@ -99,7 +99,7 @@ export default function ListSubmittedFormPage({ activeTab }) {
                   <View style={{ minWidth: minTitleBox }}>
                     <Text>{a.name}</Text>
                     <Text>
-                      Tingkat {a.floor} - Bilik {a.gender === 1 ? 'Lelaki' : 'Perempuan'}
+                      Tingkat {a.floor} - Tandas {a.gender === 1 ? '(L)' : '(P)'}
                     </Text>
                     <Text>{`${day < 10 ? '0' + day : day}/${
                       month < 10 ? '0' + month : month

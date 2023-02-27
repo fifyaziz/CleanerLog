@@ -5,7 +5,9 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as React from 'react';
 import 'react-native-gesture-handler';
 import CameraScreen from './src/component/camera';
+import CaptureImageScreen from './src/container/captureImage';
 import CleaningScreen from './src/container/cleaning';
+import CreatePekerjaScreen from './src/container/createPekerja';
 import DashboardScreen from './src/container/dashboard';
 import EditQRScreen from './src/container/editQr';
 import EntryScreen from './src/container/entry';
@@ -31,13 +33,15 @@ function App() {
     const getData = async () => {
       try {
         const getName = await AsyncStorage.getItem('@storage_checkin');
+        console.log(getName);
+        console.log(Boolean(getName));
         setIsLogin(Boolean(getName));
       } catch (e) {
         console.error('ufa', e);
       }
     };
     getData();
-  }, []);
+  }, [isLogin]);
 
   return (
     <NavigationContainer>
@@ -133,6 +137,22 @@ function App() {
           options={{
             headerShown: true,
             title: 'Kamera',
+          }}
+        />
+        <Stack.Screen
+          name="CreatePekerja"
+          component={CreatePekerjaScreen}
+          options={{
+            headerShown: true,
+            title: 'Cipta Pekerja',
+          }}
+        />
+        <Stack.Screen
+          name="CaptureImage"
+          component={CaptureImageScreen}
+          options={{
+            headerShown: true,
+            title: 'Gambar',
           }}
         />
       </Stack.Navigator>

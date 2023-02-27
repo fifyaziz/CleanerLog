@@ -23,7 +23,7 @@ import Supabase from '../config/initSupabase';
 
 const windowWidth = Dimensions.get('screen').width;
 
-export default function EditQRScreen({ route }) {
+export default function EditQRScreen({ route, navigation }) {
   const refQR = useRef();
   const routeData = route?.params?.data;
 
@@ -101,7 +101,6 @@ export default function EditQRScreen({ route }) {
     inputTingkat,
     radioJantina,
     pickerMenara,
-    radioJantina,
     masaMasukPertama,
     masaKeluarPertama,
     masaMasukKedua,
@@ -133,7 +132,7 @@ export default function EditQRScreen({ route }) {
             <body style="text-align: center;">
               <h1 style="font-size: 50px; font-family: Helvetica Neue; font-weight: normal; text-transform: capitalize">
                 Tandas ${inputNama || ''} ${
-          radioJantina === 1 ? 'Lelaki' : radioJantina === 2 ? 'perempuan' : ''
+          radioJantina === 1 ? 'Lelaki' : radioJantina === 2 ? 'Perempuan' : ''
         }
               </h1>
               <h2 style="font-size: 50px; font-family: Helvetica Neue; font-weight: normal; text-transform: capitalize">
@@ -191,7 +190,6 @@ export default function EditQRScreen({ route }) {
     });
   }, [
     inputTingkat,
-    radioJantina,
     pickerMenara,
     radioJantina,
     masaMasukPertama,
@@ -231,7 +229,6 @@ export default function EditQRScreen({ route }) {
             autoCapitalize="none"
             value={inputTingkat}
             onChangeText={setInputTingkat}
-            keyboardType="number-pad"
           />
         </View>
 
@@ -265,13 +262,13 @@ export default function EditQRScreen({ route }) {
           >
             <View style={{ paddingBottom: 5 }}>
               <TouchableOpacity onPress={() => setRadioJantina(1)}>
-                <RadioButton selected={radioJantina === 1} label="lelaki" />
+                <RadioButton selected={radioJantina === 1} label="Lelaki" />
               </TouchableOpacity>
             </View>
 
             <View style={{ paddingTop: 5 }}>
               <TouchableOpacity onPress={() => setRadioJantina(2)}>
-                <RadioButton selected={radioJantina === 2} label="perempuan" />
+                <RadioButton selected={radioJantina === 2} label="Perempuan" />
               </TouchableOpacity>
             </View>
           </View>
@@ -403,15 +400,24 @@ export default function EditQRScreen({ route }) {
         >
           <Text style={{ paddingBottom: 10 }}>Kod QR</Text>
           <QRCode
-            size={100}
+            size={200}
             value={
               JSON.stringify({
+                name: inputNama,
                 floor: inputTingkat,
+                building: pickerMenara,
                 gender: radioJantina,
+                first_in: masaMasukPertama,
+                first_out: masaKeluarPertama,
+                second_in: masaMasukKedua,
+                second_out: masaKeluarKedua,
+                third_in: masaMasukKetiga,
+                third_out: masaKeluarKetiga,
               }) || 'NA'
             }
+            logo={require('../../assets/logo.png')}
             logoSize={60}
-            backgroundColor="white"
+            logoBackgroundColor="deepskyblue"
             getRef={refQR}
             enableLinearGradient={true}
           />
@@ -424,9 +430,18 @@ export default function EditQRScreen({ route }) {
             </View>
             <View style={{ paddingHorizontal: 10 }}>
               <TouchableOpacity style={[styles.customButtton]} onPress={() => handleKongsi()}>
-                <Text style={{ color: 'white', fontWeight: '600' }}>Kongsi Kod QR</Text>
+                <Text style={{ color: 'white', fontWeight: '600' }}>Kongsi PDF</Text>
               </TouchableOpacity>
             </View>
+          </View>
+
+          <View style={{ padding: 10 }}>
+            <TouchableOpacity
+              style={[styles.customButtton]}
+              onPress={() => navigation.navigate('CaptureImage', { ...routeData })}
+            >
+              <Text style={{ color: 'white', fontWeight: '600' }}>Kongsi PNG</Text>
+            </TouchableOpacity>
           </View>
         </View>
 

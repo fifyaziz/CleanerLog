@@ -1,14 +1,15 @@
-import { Ionicons } from '@expo/vector-icons';
+import { AntDesign, Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import * as React from 'react';
 import { useCallback, useEffect } from 'react';
-import { AppState, Dimensions, StyleSheet, Text } from 'react-native';
+import { AppState, Dimensions, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import CreateQRScreen from '../container/createQr';
 import ScannerScreen from '../container/qrScanner';
 import ReportScreen from '../container/report';
 import RoomScreen from '../container/room';
+import SenaraiPekerjaScreen from '../container/senaraiPekerja';
 import SenaraiTandasScreen from '../container/senaraiTandas';
 
 const Tab = createBottomTabNavigator();
@@ -69,6 +70,24 @@ function DrawerScreen({ navigation }) {
         options={{
           title: 'Senarai Tandas',
           headerStyle: { ...styles.header },
+        }}
+      />
+      <Drawer.Screen
+        name="SenaraiPekerja"
+        component={SenaraiPekerjaScreen}
+        options={{
+          title: 'Senarai Pekerja',
+          headerStyle: { ...styles.header },
+          headerRight: () => (
+            <TouchableOpacity
+              style={{ paddingHorizontal: 20 }}
+              onPress={() => {
+                navigation.navigate('CreatePekerja');
+              }}
+            >
+              <AntDesign name="adduser" size={24} color="black" />
+            </TouchableOpacity>
+          ),
         }}
       />
     </Drawer.Navigator>

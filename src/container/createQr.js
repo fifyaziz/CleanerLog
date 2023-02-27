@@ -29,7 +29,7 @@ export default function CreateQRScreen() {
   const [inputNama, setInputNama] = useState();
   const [inputTingkat, setInputTingkat] = useState();
   const [pickerMenara, setPickerMenara] = useState('');
-  const [radioJantina, setRadioJantina] = useState('lelaki'); // 1 - lelaki, 2 - perempuan
+  const [radioJantina, setRadioJantina] = useState('Lelaki'); // 1 - lelaki, 2 - perempuan
 
   const [masaMasukPertama, setMasaMasukPertama] = useState();
   const [masaKeluarPertama, setMasaKeluarPertama] = useState();
@@ -113,7 +113,6 @@ export default function CreateQRScreen() {
     inputTingkat,
     radioJantina,
     pickerMenara,
-    radioJantina,
     masaMasukPertama,
     masaKeluarPertama,
     masaMasukKedua,
@@ -145,7 +144,7 @@ export default function CreateQRScreen() {
             <body style="text-align: center;">
               <h1 style="font-size: 50px; font-family: Helvetica Neue; font-weight: normal; text-transform: capitalize">
                 Tandas ${inputNama || ''} ${
-          radioJantina === 1 ? 'Lelaki' : radioJantina === 2 ? 'perempuan' : ''
+          radioJantina === 1 ? 'Lelaki' : radioJantina === 2 ? 'Perempuan' : ''
         }
               </h1>
               <h2 style="font-size: 50px; font-family: Helvetica Neue; font-weight: normal; text-transform: capitalize">
@@ -205,7 +204,6 @@ export default function CreateQRScreen() {
     inputTingkat,
     radioJantina,
     pickerMenara,
-    radioJantina,
     masaMasukPertama,
     masaKeluarPertama,
     masaMasukKedua,
@@ -243,7 +241,6 @@ export default function CreateQRScreen() {
             autoCapitalize="none"
             value={inputTingkat}
             onChangeText={setInputTingkat}
-            keyboardType="number-pad"
           />
         </View>
 
@@ -277,13 +274,13 @@ export default function CreateQRScreen() {
           >
             <View style={{ paddingBottom: 5 }}>
               <TouchableOpacity onPress={() => setRadioJantina(1)}>
-                <RadioButton selected={radioJantina === 1} label="lelaki" />
+                <RadioButton selected={radioJantina === 1} label="Lelaki" />
               </TouchableOpacity>
             </View>
 
             <View style={{ paddingTop: 5 }}>
               <TouchableOpacity onPress={() => setRadioJantina(2)}>
-                <RadioButton selected={radioJantina === 2} label="perempuan" />
+                <RadioButton selected={radioJantina === 2} label="Perempuan" />
               </TouchableOpacity>
             </View>
           </View>

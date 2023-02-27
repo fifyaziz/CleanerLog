@@ -28,11 +28,14 @@ const Item = ({ data }) => (
       ) : (
         <Ionicons name="woman-sharp" size={18} color="deeppink" />
       )}
-      <Text style={{ textTransform: 'capitalize', fontWeight: '500' }}> Tandas {data.name}</Text>
-      <Text> - </Text>
-      <Text style={{ textTransform: 'capitalize', fontWeight: '500' }}>
-        {data.building} Tingkat {data.floor}
+      <Text style={{ fontWeight: '500' }}>
+        {' '}
+        Tandas {data.name}
+        {data.gender === 1 ? ' (L)' : ' (P)'}
       </Text>
+      <Text> - </Text>
+      <Text style={{ textTransform: 'capitalize', fontWeight: '500' }}>{data.building}</Text>
+      <Text style={{ fontWeight: '500' }}>{` Tingkat ${data.floor}`}</Text>
     </View>
   </View>
 );
@@ -56,11 +59,16 @@ export default function RoomScreen({ navigation }) {
       const { data: dataFetch, error: errorFetch } = await Supabase.from('tandas').select();
       try {
         const storageData = await AsyncStorage.getItem('@storage_data');
-        console.log(storageData);
         setIsLogin(storageData);
         if (storageData) {
           const temp = JSON.parse(storageData);
-          const final = dataFetch?.filter((a) => a.name === temp.name && a.gender === temp.gender);
+          const final = dataFetch?.filter(
+            (a) =>
+              a.name === temp.name &&
+              a.building === temp.building &&
+              a.floor === temp.floor &&
+              a.gender === temp.gender
+          );
           setList(final);
         } else {
           setList(dataFetch);

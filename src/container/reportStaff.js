@@ -29,7 +29,7 @@ export default function ReportStaffScreen({ route, navigation }) {
       <View style={styles.container}>
         <View style={{ justifyContent: 'center', alignItems: 'center' }}>
           <Text style={styles.header}>
-            {`Tandas ${routeData.toilet_name}${routeData.gender == 1 ? ' Lelaki' : ' Perempuan'}`}
+            {`Tandas ${routeData.toilet_name}${routeData.gender == 1 ? ' (L)' : ' (P)'}`}
           </Text>
           <Text style={styles.header}>
             {routeData.building} Tingkat {routeData.floor}

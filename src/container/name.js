@@ -1,5 +1,6 @@
 import { Entypo, FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Picker } from '@react-native-picker/picker';
 import * as FileSystem from 'expo-file-system';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import * as ImagePicker from 'expo-image-picker';
@@ -10,7 +11,6 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   ToastAndroid,
   TouchableOpacity,
   View,
@@ -22,13 +22,16 @@ const headerSize = parseInt((windowWidth * 5) / 100);
 const titleSize = parseInt((windowWidth * 4) / 100);
 const fontSize = parseInt((windowWidth * 5) / 100);
 
-export default function NameScreen({ route, navigation }) {
-  const routeData = typeof route?.params === 'string' ? JSON.parse(route?.params) : route?.params;
+export default function NameScreen({ route = {}, navigation }) {
+  const routeData =
+    route && typeof route?.params === 'string' ? JSON.parse(route?.params) : route?.params;
 
   const [inputName, setInputName] = useState();
   const [nameStored, setNameStored] = useState(false);
   const [image, setImage] = useState();
   const [imageBase64, setImageBase64] = useState('');
+  const [pickerStaff, setPickerStaff] = useState('');
+  const [listPickerStaff, setListPickerStaff] = useState([]);
 
   const handleNext = async () => {
     try {
@@ -38,18 +41,19 @@ export default function NameScreen({ route, navigation }) {
       if (inputName) {
         const payload = {
           name: getName,
-          floor: routeData.floor,
-          building: routeData.building,
-          gender: routeData.gender,
+          floor: routeData?.floor,
+          building: routeData?.building,
+          gender: routeData?.gender,
           check_in: getDate,
           photo_in: getPhoto,
           check_out: new Date().toISOString(),
           photo_out: imageBase64,
-          toilet_name: routeData.name,
+          toilet_name: routeData?.name,
         };
         const { status, error } = await Supabase.from('check_in_out').insert(payload);
         if (status === 201) {
           ToastAndroid.show('Maklumat log masuk berjaya disimpan.!', ToastAndroid.BOTTOM);
+          navigation.pop();
           navigation.navigate('ReportStaff', payload);
         }
       } else {
@@ -130,16 +134,26 @@ export default function NameScreen({ route, navigation }) {
       }
     };
     getData();
+
+    try {
+      (async () => {
+        const { data: dataFetch, error: errorFetch } = await Supabase.from('staff').select();
+        if (dataFetch?.length > 0) {
+          setListPickerStaff(dataFetch);
+        }
+      })();
+    } catch (e) {
+      console.error('eufn', e);
+    }
   }, []);
 
   useEffect(() => {
-    console.log(routeData.uri);
-    if (routeData.uri) {
+    if (routeData?.uri) {
       // from camera
-      setImage(routeData.uri);
-      convertImageToBase64(routeData.uri);
+      setImage(routeData?.uri);
+      convertImageToBase64(routeData?.uri);
     }
-  }, [routeData.uri]);
+  }, [routeData?.uri]);
 
   return (
     <ScrollView>
@@ -147,10 +161,10 @@ export default function NameScreen({ route, navigation }) {
         {routeData && (
           <View style={{ justifyContent: 'center', alignItems: 'center' }}>
             <Text style={{ fontSize: 20, fontWeight: '600', textTransform: 'capitalize' }}>
-              {`Tandas ${routeData.name}${routeData.gender == 1 ? ' Lelaki' : ' Perempuan'}`}
+              {`Tandas ${routeData?.name}${routeData?.gender == 1 ? ' (L)' : ' (P)'}`}
             </Text>
             <Text style={{ fontSize: 20, fontWeight: '600', textTransform: 'capitalize' }}>
-              {routeData.building} Tingkat {routeData.floor}
+              {routeData?.building} Tingkat {routeData?.floor}
             </Text>
             <View style={{ width: 50, height: 10, borderBottomWidth: 1 }}></View>
           </View>
@@ -181,14 +195,28 @@ export default function NameScreen({ route, navigation }) {
                   fontSize: 14,
                 }}
               >
-                Sila masukkan nama pekerja
+                Sila Pilih Nama Anda
               </Text>
-              <TextInput
+              {/* <TextInput
                 placeholder="Nama Pekerja"
                 style={{ borderWidth: 1, borderRadius: 5, padding: 10, marginTop: 10 }}
                 onChangeText={setInputName}
                 value={inputName}
-              />
+              /> */}
+              <View style={{ borderWidth: 1, borderRadius: 10, marginTop: 10, marginBottom: 20 }}>
+                <Picker
+                  selectedValue={pickerStaff}
+                  onValueChange={(itemValue, itemIndex) => {
+                    setInputName(itemValue);
+                    setPickerStaff(itemValue);
+                  }}
+                >
+                  <Picker.Item label="Pilih Nama" value="" />
+                  {listPickerStaff?.map((a, i) => (
+                    <Picker.Item key={i} label={a.staff_name} value={a.staff_name} />
+                  ))}
+                </Picker>
+              </View>
             </View>
           )}
 

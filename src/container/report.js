@@ -71,11 +71,12 @@ export default function ReportScreen({ navigation }) {
                   <View style={{ flexDirection: 'row' }}>
                     <View style={{ minWidth: minTitleBox }}>
                       <Text>{a.name}</Text>
-                      <Text style={{ textTransform: 'capitalize' }}>{`Tandas ${
-                        a.toilet_name
-                      } Tingkat ${a.floor} - Bilik ${
-                        a.gender === 1 ? 'Lelaki' : 'Perempuan'
-                      }`}</Text>
+                      <Text>
+                        {`Tandas ${a.toilet_name} ${a.gender === 1 ? '(L)' : '(P)'} - ${
+                          a.building
+                        } Tingkat `}
+                        <Text style={{ textTransform: 'uppercase' }}>{a.floor}</Text>
+                      </Text>
                       <Text>{`${timeFormat(a.check_in)} - ${timeFormat(a.check_out)}`}</Text>
                     </View>
                   </View>
@@ -124,8 +125,9 @@ const styles = StyleSheet.create({
   boxContainer: {
     borderBottomWidth: 1,
     paddingVertical: 10,
+    paddingHorizontal: '10%',
     width: windowWidth,
-    alignItems: 'center',
+    alignItems: 'flex-start',
   },
   login: {
     marginTop: 20,
