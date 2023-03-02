@@ -22,7 +22,7 @@ export default function ModalLogin() {
 
   const handlePress = useCallback(async () => {
     const { data: dataFetch } = await Supabase.from('password').select('pass').eq('pass', input);
-    if (input == '0000' || dataFetch?.length > 0) {
+    if (dataFetch?.length > 0) {
       try {
         await AsyncStorage.setItem('@storage_key', input);
         setOpenModal(false);

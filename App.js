@@ -8,6 +8,8 @@ import CameraScreen from './src/component/camera';
 import CaptureImageScreen from './src/container/captureImage';
 import CleaningScreen from './src/container/cleaning';
 import CreatePekerjaScreen from './src/container/createPekerja';
+import CreateQRSurauScreen from './src/container/createQrSurau';
+import CreateQRTandasScreen from './src/container/createQrTandas';
 import DashboardScreen from './src/container/dashboard';
 import EditQRScreen from './src/container/editQr';
 import EntryScreen from './src/container/entry';
@@ -33,8 +35,6 @@ function App() {
     const getData = async () => {
       try {
         const getName = await AsyncStorage.getItem('@storage_checkin');
-        console.log(getName);
-        console.log(Boolean(getName));
         setIsLogin(Boolean(getName));
       } catch (e) {
         console.error('ufa', e);
@@ -113,7 +113,7 @@ function App() {
           component={EditQRScreen}
           options={{
             headerShown: true,
-            title: 'Kemaskini Maklumat Tandas',
+            title: 'Kemaskini Maklumat',
           }}
         />
         <Stack.Screen
@@ -153,6 +153,22 @@ function App() {
           options={{
             headerShown: true,
             title: 'Gambar',
+          }}
+        />
+        <Stack.Screen
+          name="CreateQRTandas"
+          component={CreateQRTandasScreen}
+          options={{
+            headerShown: true,
+            title: 'Cipta Kod QR Tandas',
+          }}
+        />
+        <Stack.Screen
+          name="CreateQRSurau"
+          component={CreateQRSurauScreen}
+          options={{
+            headerShown: true,
+            title: 'Cipta Kod QR Surau',
           }}
         />
       </Stack.Navigator>

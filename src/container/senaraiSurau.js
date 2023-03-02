@@ -26,7 +26,7 @@ const Item = ({ data }) => (
       ) : (
         <Ionicons name="woman-sharp" size={titleSize} color="deeppink" />
       )}
-      <Text style={styles.title}>Tandas {data.name} </Text>
+      <Text style={styles.title}>Surau {data.name} </Text>
       <Text style={styles.title}> - </Text>
       <Text style={styles.desc}>
         {data.building} Tingkat {data.floor}
@@ -35,7 +35,7 @@ const Item = ({ data }) => (
   </View>
 );
 
-export default function SenaraiTandasScreen({ navigation }) {
+export default function SenaraiSurauScreen({ navigation }) {
   const [list, setList] = useState();
   const [loading, setLoading] = useState(true);
 
@@ -43,7 +43,7 @@ export default function SenaraiTandasScreen({ navigation }) {
     const fetchData = async () => {
       const { data: dataFetch, error: errorFetch } = await Supabase.from('service_area')
         .select()
-        .eq('is_surau', false)
+        .eq('is_surau', true)
         .order('order', { ascending: true });
       setList(dataFetch);
       setLoading(false);
@@ -55,6 +55,13 @@ export default function SenaraiTandasScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       {loading && <ActivityIndicator style={{ marginTop: 40 }} color={'black'} size={50} />}
+      {!list ||
+        (list.length === 0 && (
+          <Text style={{ textAlign: 'center', fontSize: 18, fontWeight: '600' }}>
+            {' '}
+            - Tiada Surau -{' '}
+          </Text>
+        ))}
       <FlatList
         data={list}
         renderItem={({ item }) => (

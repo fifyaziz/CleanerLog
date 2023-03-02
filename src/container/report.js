@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { dayDateFormat, timeFormat } from '../config';
+import { dateAPIFormat, dayDateFormat, timeFormat } from '../config';
 import Supabase from '../config/initSupabase';
 
 const windowHeight = Dimensions.get('window').height - 189;
@@ -20,19 +20,14 @@ export default function ReportScreen({ navigation }) {
   const [listTop3, setListTop3] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  var start = new Date();
-  // start.setDate(start.getDate() - 4);
-  start.setUTCHours(0, 0, 0, 0);
-
-  var end = new Date();
-  // end.setDate(end.getDate() - 4);
-  end.setUTCHours(23, 59, 59, 999);
+  const before = `${dateAPIFormat(new Date())} 00:00`;
+  const after = `${dateAPIFormat(new Date())} 23:59`;
 
   const fetchData = async () => {
     const { data: dataFetch } = await Supabase.from('check_in_out')
       .select()
-      .gte('check_in', start.toISOString())
-      .lte('check_in', end.toISOString())
+      .gte('check_in', before)
+      .lte('check_in', after)
       .order('id', { ascending: false });
 
     setListTop3(dataFetch);
@@ -52,7 +47,7 @@ export default function ReportScreen({ navigation }) {
     <ScrollView refreshControl={<RefreshControl refreshing={loading} onRefresh={onRefresh} />}>
       <View style={styles.container}>
         <Text style={styles.title}>Senarai Log Hari Ini</Text>
-        <Text style={styles.subTitle}>{dayDateFormat(start)}</Text>
+        <Text style={styles.subTitle}>{dayDateFormat(new Date())}</Text>
 
         {loading && <ActivityIndicator style={{ marginTop: 40 }} color={'black'} size={50} />}
         {listTop3?.length > 0 ? (
@@ -72,10 +67,10 @@ export default function ReportScreen({ navigation }) {
                     <View style={{ minWidth: minTitleBox }}>
                       <Text>{a.name}</Text>
                       <Text>
-                        {`Tandas ${a.toilet_name} ${a.gender === 1 ? '(L)' : '(P)'} - ${
-                          a.building
-                        } Tingkat `}
-                        <Text style={{ textTransform: 'uppercase' }}>{a.floor}</Text>
+                        {a.is_surau ? 'Surau' : 'Tandas'} {a.toilet_name}{' '}
+                        {a.gender === 1 ? '(L)' : '(P)'} -{' '}
+                        <Text style={{ textTransform: 'capitalize' }}>{a.building} </Text>
+                        Tingkat <Text style={{ textTransform: 'uppercase' }}>{a.floor}</Text>
                       </Text>
                       <Text>{`${timeFormat(a.check_in)} - ${timeFormat(a.check_out)}`}</Text>
                     </View>

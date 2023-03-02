@@ -24,7 +24,6 @@ export default function CaptureImageScreen({ route }) {
   const routeData = route?.params || {};
 
   const [countMasa, setCountMasa] = useState(0);
-  const [masaIn1, setMasaIn1] = useState(0);
 
   if (status === null) {
     requestPermission();
@@ -47,8 +46,9 @@ export default function CaptureImageScreen({ route }) {
   };
 
   useEffect(() => {
-    if (routeData?.third_in) {
-      setMasaIn1(routeData);
+    if (routeData?.fourth_in) {
+      setCountMasa(4);
+    } else if (routeData?.third_in) {
       setCountMasa(3);
     } else if (routeData?.second_in) {
       setCountMasa(2);
@@ -58,6 +58,19 @@ export default function CaptureImageScreen({ route }) {
       setCountMasa(0);
     }
   }, [countMasa]);
+
+  console.log({
+    name: routeData.name,
+    floor: routeData.floor,
+    building: routeData.building,
+    gender: routeData.gender,
+    first_in: routeData.first_in,
+    first_out: routeData.first_out,
+    second_in: routeData.second_in,
+    second_out: routeData.second_out,
+    third_in: routeData.third_in,
+    third_out: routeData.third_out,
+  });
 
   return (
     <ScrollView>
@@ -105,99 +118,103 @@ export default function CaptureImageScreen({ route }) {
                 <Text style={{ fontSize: 28 }} />
                 <Text style={{ fontSize: 28 }} />
                 <Text style={{ fontSize: 60, fontWeight: '600' }}>
-                  Tandas {routeData.name} {routeData.gender === 1 ? '(L)' : '(P)'}
+                  {routeData.is_surau ? 'Surau' : 'Tandas'} {routeData.name}{' '}
+                  {routeData.gender === 1 ? '(L)' : '(P)'}
                 </Text>
                 <Text style={{ fontSize: 28, fontWeight: '400' }}>(Cleaner)</Text>
                 <Text style={{ fontSize: 28 }} />
 
-                {countMasa > 0 && (
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    borderWidth: 2,
+                    borderRadius: 10,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                >
                   <View
                     style={{
-                      flexDirection: 'row',
-                      borderWidth: 2,
-                      borderRadius: 10,
+                      borderRightWidth: 1,
+                      paddingVertical: 30,
+                      paddingHorizontal: 45,
                       justifyContent: 'center',
                       alignItems: 'center',
                     }}
                   >
-                    <View
-                      style={{
-                        borderRightWidth: 1,
-                        paddingVertical: 30,
-                        paddingHorizontal: 45,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                      }}
-                    >
-                      <QRCode
-                        size={350}
-                        value={
-                          JSON.stringify({
-                            name: routeData.name,
-                            floor: routeData.floor,
-                            building: routeData.building,
-                            gender: routeData.gender,
-                            first_in: routeData.first_in,
-                            first_out: routeData.first_out,
-                            second_in: routeData.second_in,
-                            second_out: routeData.second_out,
-                            third_in: routeData.third_in,
-                            third_out: routeData.third_out,
-                          }) || 'NA'
-                        }
-                        logo={require('../../assets/logo.png')}
-                        logoSize={60}
-                        logoBackgroundColor="deepskyblue"
-                        getRef={refQR}
-                        enableLinearGradient={true}
-                      />
-                      <View></View>
-                      <Text style={{ fontSize: 20, paddingTop: 5, fontWeight: '500' }}>
-                        Tandas {routeData.name} {routeData.gender === 1 ? '(L)' : '(P)'}
-                      </Text>
-                      <Text style={{ fontSize: 18, fontWeight: '500' }}>
-                        {routeData.building} Tingkat {routeData.floor}
-                      </Text>
-                    </View>
-                    <View
-                      style={{
-                        paddingVertical: 20,
-                        paddingHorizontal: 35,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                      }}
-                    >
-                      <Text style={{ fontSize: 36, fontWeight: 'bold' }}>
-                        SO FRESH
-                        <Text style={{ fontSize: 24, fontWeight: 'bold' }}> &amp; </Text>
-                      </Text>
-                      <Text style={{ fontSize: 42, fontWeight: 'bold' }}>SO CLEAN</Text>
-                      <Text style={{ fontSize: 36, fontWeight: 'bold' }}>_________</Text>
-                      <Text style={{ fontSize: 28 }} />
-
-                      <Text style={{ fontSize: 36, fontWeight: 'bold' }}>MTC CLEANER</Text>
-                      <Text style={{ fontSize: 36, fontWeight: 'bold' }}>MONITORING</Text>
-                      <Text style={{ fontSize: 36, fontWeight: 'bold' }}>APPS</Text>
-                    </View>
+                    <QRCode
+                      size={350}
+                      value={
+                        JSON.stringify({
+                          name: routeData.name,
+                          floor: routeData.floor,
+                          building: routeData.building,
+                          gender: routeData.gender,
+                          first_in: routeData.first_in,
+                          first_out: routeData.first_out,
+                          second_in: routeData.second_in,
+                          second_out: routeData.second_out,
+                          third_in: routeData.third_in,
+                          third_out: routeData.third_out,
+                        }) || 'NA'
+                      }
+                      logo={require('../../assets/logo.png')}
+                      logoSize={60}
+                      logoBackgroundColor="deepskyblue"
+                      getRef={refQR}
+                      enableLinearGradient={true}
+                    />
+                    <View></View>
+                    <Text style={{ fontSize: 20, paddingTop: 5, fontWeight: '500' }}>
+                      {routeData.is_surau ? 'Surau' : 'Tandas'} {routeData.name}{' '}
+                      {routeData.gender === 1 ? '(L)' : '(P)'}
+                    </Text>
+                    <Text style={{ fontSize: 18, fontWeight: '500' }}>
+                      <Text style={{ textTransform: 'capitalize' }}>{routeData.building}</Text>{' '}
+                      Tingkat {routeData.floor}
+                    </Text>
                   </View>
-                )}
+                  <View
+                    style={{
+                      paddingVertical: 20,
+                      paddingHorizontal: 35,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Text style={{ fontSize: 36, fontWeight: 'bold' }}>
+                      SO FRESH
+                      <Text style={{ fontSize: 24, fontWeight: 'bold' }}> &amp; </Text>
+                    </Text>
+                    <Text style={{ fontSize: 42, fontWeight: 'bold' }}>SO CLEAN</Text>
+                    <Text style={{ fontSize: 36, fontWeight: 'bold' }}>_________</Text>
+                    <Text style={{ fontSize: 28 }} />
+
+                    <Text style={{ fontSize: 36, fontWeight: 'bold' }}>MTC CLEANER</Text>
+                    <Text style={{ fontSize: 36, fontWeight: 'bold' }}>MONITORING</Text>
+                    <Text style={{ fontSize: 36, fontWeight: 'bold' }}>APPS</Text>
+                  </View>
+                </View>
 
                 <Text style={{ padding: 5 }}></Text>
 
-                <View
-                  style={{
-                    backgroundColor: 'red',
-                    color: 'white',
-                    width: (widthA4 * 60) / 100,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    borderWidth: 1,
-                  }}
-                >
-                  <Text style={{ color: 'white', padding: 10, fontWeight: 'bold', fontSize: 24 }}>
-                    JADUAL PEMBERSIHAN
-                  </Text>
-                </View>
+                {countMasa > 0 && (
+                  <View
+                    style={{
+                      backgroundColor: 'red',
+                      color: 'white',
+                      width: (widthA4 * 60) / 100,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      borderWidth: 1,
+                    }}
+                  >
+                    <Text style={{ color: 'white', padding: 10, fontWeight: 'bold', fontSize: 24 }}>
+                      JADUAL PEMBERSIHAN
+                    </Text>
+                  </View>
+                )}
+
                 <View style={{ flexDirection: 'row' }}>
                   {countMasa > 0 && (
                     <Text
@@ -233,6 +250,18 @@ export default function CaptureImageScreen({ route }) {
                       ]}
                     >
                       Masa Ketiga (3)
+                    </Text>
+                  )}
+                  {countMasa > 3 && (
+                    <Text
+                      style={[
+                        styles.table,
+                        {
+                          width: ((widthA4 / countMasa) * 60) / 100,
+                        },
+                      ]}
+                    >
+                      Masa Keempat (4)
                     </Text>
                   )}
                 </View>
@@ -271,6 +300,18 @@ export default function CaptureImageScreen({ route }) {
                       ]}
                     >
                       {timeFormat(routeData.third_in)}-{timeFormat(routeData.third_out)}
+                    </Text>
+                  )}
+                  {countMasa > 3 && (
+                    <Text
+                      style={[
+                        styles.table,
+                        {
+                          width: ((widthA4 / countMasa) * 60) / 100,
+                        },
+                      ]}
+                    >
+                      {timeFormat(routeData.fourth_in)}-{timeFormat(routeData.fourth_out)}
                     </Text>
                   )}
                 </View>

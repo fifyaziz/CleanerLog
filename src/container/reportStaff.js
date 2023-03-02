@@ -29,7 +29,9 @@ export default function ReportStaffScreen({ route, navigation }) {
       <View style={styles.container}>
         <View style={{ justifyContent: 'center', alignItems: 'center' }}>
           <Text style={styles.header}>
-            {`Tandas ${routeData.toilet_name}${routeData.gender == 1 ? ' (L)' : ' (P)'}`}
+            {`${routeData.is_surau ? 'Surau' : 'Tandas'} ${routeData.toilet_name}${
+              routeData.gender == 1 ? ' (L)' : ' (P)'
+            }`}
           </Text>
           <Text style={styles.header}>
             {routeData.building} Tingkat {routeData.floor}
@@ -49,10 +51,26 @@ export default function ReportStaffScreen({ route, navigation }) {
         >
           <Text style={styles.title2}>Tarikh &amp; Masa{'\n'}Log Masuk</Text>
           <Text style={styles.desc}>{dateTimeFormat(routeData.check_in)}</Text>
-          <Image
-            source={{ uri: `data:image/jpeg;base64,${routeData.photo_in}` }}
-            style={{ height: 200, width: 250 }}
-          />
+          {routeData.photo_in ? (
+            <Image
+              source={{ uri: `data:image/jpeg;base64,${routeData.photo_in}` }}
+              style={{ height: 200, width: 250 }}
+            />
+          ) : (
+            <Text
+              style={{
+                color: 'grey',
+                marginTop: 10,
+                paddingHorizontal: 30,
+                paddingVertical: 20,
+                borderWidth: 1,
+                borderColor: 'lightgrey',
+                borderRadius: 10,
+              }}
+            >
+              - Tiada Gambar -{' '}
+            </Text>
+          )}
         </View>
 
         <View
@@ -64,10 +82,26 @@ export default function ReportStaffScreen({ route, navigation }) {
         >
           <Text style={styles.title2}>Tarikh &amp; Masa{'\n'}Log Keluar</Text>
           <Text style={styles.desc}>{dateTimeFormat(routeData.check_out)}</Text>
-          <Image
-            source={{ uri: `data:image/jpeg;base64,${routeData.photo_out}` }}
-            style={{ height: 200, width: 250 }}
-          />
+          {routeData.photo_out ? (
+            <Image
+              source={{ uri: `data:image/jpeg;base64,${routeData.photo_out}` }}
+              style={{ height: 200, width: 250 }}
+            />
+          ) : (
+            <Text
+              style={{
+                color: 'grey',
+                marginTop: 10,
+                paddingHorizontal: 30,
+                paddingVertical: 20,
+                borderWidth: 1,
+                borderColor: 'lightgrey',
+                borderRadius: 10,
+              }}
+            >
+              - Tiada Gambar -{' '}
+            </Text>
+          )}
         </View>
 
         <View>

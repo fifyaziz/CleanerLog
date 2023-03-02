@@ -52,5 +52,15 @@ export const dateTimeAPIFormat = (datetime) => {
   const year = date.getFullYear();
   const hours = date.getHours();
   const minutes = date.getMinutes();
-  return `${year}-${month}-${day}T${hours}:${minutes}:00.000 GMT`;
+  return `${year}-${month}-${day} ${hours}:${minutes}:00.000 GMT`;
+};
+
+export const dateAPIFormat = (datetime) => {
+  const date = new Date(datetime);
+  const day = date.getDate();
+  const month = date.getMonth() + 1;
+  const year = date.getFullYear();
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  return `${year}-${month}-${day}`;
 };

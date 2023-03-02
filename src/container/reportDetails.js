@@ -65,7 +65,7 @@ export default function ReportDetailScreen({ route, navigation }) {
     <ScrollView>
       <View style={styles.container}>
         <Text style={styles.header}>
-          Maklumat Tandas
+          Maklumat {routeData.is_surau ? 'Surau' : 'Tandas'}
           {routeData?.gender === '1' ? ' (L)' : ' (P)'}
         </Text>
         <Text style={styles.header}>
@@ -149,19 +149,51 @@ export default function ReportDetailScreen({ route, navigation }) {
         {/* <Text style={styles.title2}>Komen</Text>
         <Text style={styles.desc}>{routeData.remarks}</Text> */}
 
-        <Image
-          source={{ uri: `data:image/jpeg;base64,${routeData.photo_in}` }}
-          style={{ height: 200, width: 250 }}
-        />
+        {routeData.photo_in ? (
+          <Image
+            source={{ uri: `data:image/jpeg;base64,${routeData.photo_in}` }}
+            style={{ height: 200, width: 250 }}
+          />
+        ) : (
+          <Text
+            style={{
+              color: 'grey',
+              marginTop: 10,
+              paddingHorizontal: 30,
+              paddingVertical: 20,
+              borderWidth: 1,
+              borderColor: 'lightgrey',
+              borderRadius: 10,
+            }}
+          >
+            - Tiada Gambar -{' '}
+          </Text>
+        )}
 
         <View>
-          <Text style={styles.title2}>Tarikh & Masa{'\n'}Mencuci</Text>
+          <Text style={styles.title2}>Tarikh &amp; Masa{'\n'}Mencuci</Text>
           <Text style={styles.desc}>{dateTimeFormat(routeData.check_out)}</Text>
         </View>
-        <Image
-          source={{ uri: `data:image/jpeg;base64,${routeData.photo_out}` }}
-          style={{ height: 200, width: 250 }}
-        />
+        {routeData.photo_out ? (
+          <Image
+            source={{ uri: `data:image/jpeg;base64,${routeData.photo_out}` }}
+            style={{ height: 200, width: 250 }}
+          />
+        ) : (
+          <Text
+            style={{
+              color: 'grey',
+              marginTop: 10,
+              paddingHorizontal: 30,
+              paddingVertical: 20,
+              borderWidth: 1,
+              borderColor: 'lightgrey',
+              borderRadius: 10,
+            }}
+          >
+            - Tiada Gambar -{' '}
+          </Text>
+        )}
 
         {routeData.activeTab === 0 && (
           <View style={{ justifyContent: 'center', alignItems: 'center' }}>

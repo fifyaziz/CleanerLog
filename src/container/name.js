@@ -27,6 +27,7 @@ export default function NameScreen({ route = {}, navigation }) {
     route && typeof route?.params === 'string' ? JSON.parse(route?.params) : route?.params;
 
   const [inputName, setInputName] = useState();
+  const [inputId, setInputID] = useState();
   const [nameStored, setNameStored] = useState(false);
   const [image, setImage] = useState();
   const [imageBase64, setImageBase64] = useState('');
@@ -36,6 +37,7 @@ export default function NameScreen({ route = {}, navigation }) {
   const handleNext = async () => {
     try {
       const getName = await AsyncStorage.getItem('@storage_checkin');
+      const getId = await AsyncStorage.getItem('@storage_checkin_id');
       const getDate = await AsyncStorage.getItem('@storage_checkin_date');
       const getPhoto = await AsyncStorage.getItem('@storage_checkin_photo');
       if (inputName) {
@@ -49,6 +51,8 @@ export default function NameScreen({ route = {}, navigation }) {
           check_out: new Date().toISOString(),
           photo_out: imageBase64,
           toilet_name: routeData?.name,
+          id_staff: getId,
+          is_surau: routeData.is_surau,
         };
         const { status, error } = await Supabase.from('check_in_out').insert(payload);
         if (status === 201) {
@@ -68,6 +72,7 @@ export default function NameScreen({ route = {}, navigation }) {
     if (inputName) {
       try {
         await AsyncStorage.setItem('@storage_checkin', inputName);
+        await AsyncStorage.setItem('@storage_checkin_id', inputId);
         await AsyncStorage.setItem('@storage_checkin_date', new Date().toISOString());
         await AsyncStorage.setItem('@storage_data', JSON.stringify(routeData));
         await AsyncStorage.setItem('@storage_checkin_photo', imageBase64);
@@ -127,8 +132,10 @@ export default function NameScreen({ route = {}, navigation }) {
       try {
         // await AsyncStorage.removeItem('@storage_checkin');
         const getName = await AsyncStorage.getItem('@storage_checkin');
+        const getId = await AsyncStorage.getItem('@storage_checkin_id');
         setNameStored(Boolean(getName));
         setInputName(getName);
+        setInputID(getId);
       } catch (e) {
         console.error('euengd', e);
       }
@@ -160,11 +167,14 @@ export default function NameScreen({ route = {}, navigation }) {
       <View style={[styles.container, { padding: 30 }]}>
         {routeData && (
           <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-            <Text style={{ fontSize: 20, fontWeight: '600', textTransform: 'capitalize' }}>
-              {`Tandas ${routeData?.name}${routeData?.gender == 1 ? ' (L)' : ' (P)'}`}
+            <Text style={{ fontSize: 20, fontWeight: '600' }}>
+              {`${routeData.is_surau ? 'Surau' : 'Tandas'} ${routeData?.name}${
+                routeData?.gender == 1 ? ' (L)' : ' (P)'
+              }`}
             </Text>
-            <Text style={{ fontSize: 20, fontWeight: '600', textTransform: 'capitalize' }}>
-              {routeData?.building} Tingkat {routeData?.floor}
+            <Text style={{ fontSize: 20, fontWeight: '600' }}>
+              <Text style={{ textTransform: 'capitalize' }}>{routeData?.building}</Text> Tingkat{' '}
+              {routeData?.floor}
             </Text>
             <View style={{ width: 50, height: 10, borderBottomWidth: 1 }}></View>
           </View>
@@ -207,13 +217,20 @@ export default function NameScreen({ route = {}, navigation }) {
                 <Picker
                   selectedValue={pickerStaff}
                   onValueChange={(itemValue, itemIndex) => {
+                    listPickerStaff.map(
+                      (a) => a.staff_name === itemValue && setInputID(a.staff_id)
+                    );
                     setInputName(itemValue);
                     setPickerStaff(itemValue);
                   }}
                 >
                   <Picker.Item label="Pilih Nama" value="" />
                   {listPickerStaff?.map((a, i) => (
-                    <Picker.Item key={i} label={a.staff_name} value={a.staff_name} />
+                    <Picker.Item
+                      key={i}
+                      label={i + 1 + ' - ' + a.staff_name}
+                      value={a.staff_name}
+                    />
                   ))}
                 </Picker>
               </View>

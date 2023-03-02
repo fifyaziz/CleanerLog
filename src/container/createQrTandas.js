@@ -13,7 +13,7 @@ import {
   TextInput,
   ToastAndroid,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import QRCode from 'react-native-qrcode-svg';
@@ -23,7 +23,7 @@ import Supabase from '../config/initSupabase';
 
 const windowWidth = Dimensions.get('screen').width;
 
-export default function CreateQRScreen() {
+export default function CreateQRTandasScreen({ navigation }) {
   const refQR = useRef();
 
   const [inputNama, setInputNama] = useState();
@@ -37,6 +37,8 @@ export default function CreateQRScreen() {
   const [masaKeluarKedua, setMasaKeluarKedua] = useState();
   const [masaMasukKetiga, setMasaMasukKetiga] = useState();
   const [masaKeluarKetiga, setMasaKeluarKetiga] = useState();
+  const [masaMasukKeempat, setMasaMasukKeempat] = useState();
+  const [masaKeluarKeempat, setMasaKeluarKeempat] = useState();
 
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [datePickerType, setDatePickerType] = useState();
@@ -68,6 +70,10 @@ export default function CreateQRScreen() {
         setMasaMasukKetiga(date);
       } else if (datePickerType === 'out' && datePickerNum === 3) {
         setMasaKeluarKetiga(date);
+      } else if (datePickerType === 'in' && datePickerNum === 4) {
+        setMasaMasukKeempat(date);
+      } else if (datePickerType === 'out' && datePickerNum === 4) {
+        setMasaKeluarKeempat(date);
       }
 
       hideDatePicker();
@@ -81,10 +87,11 @@ export default function CreateQRScreen() {
       .eq('name', inputNama)
       .eq('floor', inputTingkat)
       .eq('building', pickerMenara)
-      .eq('gender', radioJantina);
+      .eq('gender', radioJantina)
+      .eq('is_surau', false);
 
     if (dataFetch?.length > 0) {
-      ToastAndroid.show('Maklumat Tandas ini telah wujud.!', ToastAndroid.TOP);
+      ToastAndroid.show('Maklumat tandas ini telah wujud.!', ToastAndroid.TOP);
     } else if (dataFetch?.length === 0) {
       const { status, error } = await Supabase.from('tandas').insert({
         name: inputNama,
@@ -97,9 +104,13 @@ export default function CreateQRScreen() {
         second_out: masaKeluarKedua,
         third_in: masaMasukKetiga,
         third_out: masaKeluarKetiga,
+        fourth_in: masaMasukKeempat,
+        fourth_out: masaKeluarKeempat,
+        is_surau: false
       });
       if (status === 201) {
-        ToastAndroid.show('Maklumat Tandas berjaya disimpan.!', ToastAndroid.BOTTOM);
+        navigation.pop();
+        ToastAndroid.show('Maklumat tandas berjaya disimpan.!', ToastAndroid.BOTTOM);
       }
       if (error) {
         console.error('error', error);
@@ -119,6 +130,8 @@ export default function CreateQRScreen() {
     masaKeluarKedua,
     masaMasukKetiga,
     masaKeluarKetiga,
+    masaMasukKeempat,
+    masaKeluarKeempat,
   ]);
 
   const handleKongsi = useCallback(async () => {
@@ -153,17 +166,26 @@ export default function CreateQRScreen() {
               <img src="data:image/gif;base64, ${data}"/>
 
               ${
-                masaMasukKetiga || masaMasukKedua || masaMasukPertama
+                masaMasukKeempat || masaMasukKetiga || masaMasukKedua || masaMasukPertama
                   ? `<table style="margin-top: 50px; font-size: 18px; font-weight: 600;">
                 <tr>
                   <th colspan="${
-                    masaMasukKetiga ? 3 : masaMasukKedua ? 2 : masaMasukPertama ? 1 : 0
+                    masaMasukKeempat
+                      ? 4
+                      : masaMasukKetiga
+                      ? 3
+                      : masaMasukKedua
+                      ? 2
+                      : masaMasukPertama
+                      ? 1
+                      : 0
                   }" style="background-color: red; color: white;">Jadual Pembersihan</th>
                 </tr>
                 <tr>
                   ${masaMasukPertama ? '<th>Masa Pertama(1)</th>' : ''}
                   ${masaMasukKedua ? '<th>Masa Kedua(2)</th>' : ''}
                   ${masaMasukKetiga ? '<th>Masa Ketiga(3)</th>' : ''}
+                  ${masaMasukKeempat ? '<th>Masa Keempat(4)</th>' : ''}
                 </tr>
                 <tr>
                   ${
@@ -181,6 +203,13 @@ export default function CreateQRScreen() {
                   ${
                     masaMasukKetiga
                       ? `<th>${timeFormat(masaMasukKetiga)} - ${timeFormat(masaKeluarKetiga)}</th>`
+                      : ''
+                  }
+                  ${
+                    masaMasukKeempat
+                      ? `<th>${timeFormat(masaMasukKeempat)} - ${timeFormat(
+                          masaKeluarKeempat
+                        )}</th>`
                       : ''
                   }
                 </tr>
@@ -210,6 +239,8 @@ export default function CreateQRScreen() {
     masaKeluarKedua,
     masaMasukKetiga,
     masaKeluarKetiga,
+    masaMasukKeempat,
+    masaKeluarKeempat,
   ]);
 
   useEffect(() => {
@@ -228,7 +259,7 @@ export default function CreateQRScreen() {
         </Text>
         <View style={{ flexDirection: 'row', paddingTop: 10 }}>
           <TextInput
-            placeholder="Nama tandas"
+            placeholder="Nama Tandas"
             style={[styles.textInput, { width: '55%', marginLeft: 10, marginRight: 5 }]}
             autoCapitalize="none"
             value={inputNama}
@@ -397,6 +428,41 @@ export default function CreateQRScreen() {
                 ]}
               >
                 {masaKeluarKetiga ? timeFormat(masaKeluarKetiga) : ''}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            paddingHorizontal: 10,
+            paddingVertical: 5,
+          }}
+        >
+          <Text style={{ width: '35%' }}>Masa Keempat</Text>
+          <View style={{ paddingHorizontal: 10 }}>
+            <TouchableOpacity onPress={() => showDatePicker('in', 4)}>
+              <Text
+                style={[
+                  styles.textInput,
+                  { borderRadius: 10, overflow: 'hidden', padding: 10, minWidth: 75 },
+                ]}
+              >
+                {masaMasukKeempat ? timeFormat(masaMasukKeempat) : ''}
+              </Text>
+            </TouchableOpacity>
+          </View>
+          <View style={{ paddingHorizontal: 10 }}>
+            <TouchableOpacity onPress={() => showDatePicker('out', 4)}>
+              <Text
+                style={[
+                  styles.textInput,
+                  { borderRadius: 10, overflow: 'hidden', padding: 10, minWidth: 75 },
+                ]}
+              >
+                {masaKeluarKeempat ? timeFormat(masaKeluarKeempat) : ''}
               </Text>
             </TouchableOpacity>
           </View>

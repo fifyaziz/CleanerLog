@@ -16,7 +16,8 @@
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "myqrproject.sampleapps"
     },
     "android": {
       "package": "myqrproject.sampleapps",

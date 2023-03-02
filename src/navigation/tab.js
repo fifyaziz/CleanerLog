@@ -1,15 +1,24 @@
-import { AntDesign, Ionicons } from '@expo/vector-icons';
+import { AntDesign, Entypo, Ionicons, Octicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator } from '@react-navigation/drawer';
+import { useFocusEffect } from '@react-navigation/native';
 import * as React from 'react';
-import { useCallback, useEffect } from 'react';
-import { AppState, Dimensions, StyleSheet, Text, TouchableOpacity } from 'react-native';
-import CreateQRScreen from '../container/createQr';
+import { useEffect } from 'react';
+import {
+  AppState,
+  Dimensions,
+  StyleSheet,
+  Text,
+  ToastAndroid,
+  TouchableOpacity,
+} from 'react-native';
 import ScannerScreen from '../container/qrScanner';
 import ReportScreen from '../container/report';
+import ReportWeeklyScreen from '../container/reportWeekly';
 import RoomScreen from '../container/room';
 import SenaraiPekerjaScreen from '../container/senaraiPekerja';
+import SenaraiSurauScreen from '../container/senaraiSurau';
 import SenaraiTandasScreen from '../container/senaraiTandas';
 
 const Tab = createBottomTabNavigator();
@@ -19,19 +28,29 @@ const windowWidth = Dimensions.get('window').width;
 const textSize = parseInt((windowWidth * 4) / 100);
 
 function DrawerScreen({ navigation }) {
-  const clearData = useCallback(async () => {
+  const [isLogin, setIsLogin] = React.useState();
+
+  const handleClearData = async () => {
     try {
-      await AsyncStorage.removeItem('@storage_key');
-      // navigation.dispatch(
-      //   CommonActions.reset({
-      //     index: 0,
-      //     routes: [{ name: 'Select' }],
-      //   })
-      // );
+      await AsyncStorage.removeItem('@MySuperPass');
+      setIsLogin();
+      ToastAndroid.show('Menu telah ditutup', ToastAndroid.BOTTOM);
     } catch (e) {
       console.error('erroe', e);
     }
-  }, [navigation]);
+  };
+
+  useFocusEffect(() => {
+    const handleFetch = async () => {
+      try {
+        const getVal = await AsyncStorage.getItem('@MySuperPass');
+        setIsLogin(getVal);
+      } catch (e) {
+        console.error('erroe', e);
+      }
+    };
+    handleFetch();
+  });
 
   return (
     <Drawer.Navigator initialRouteName="Report" drawerPosition="right">
@@ -41,6 +60,21 @@ function DrawerScreen({ navigation }) {
         options={{
           title: 'Borang Harian',
           headerStyle: { ...styles.header },
+          headerRight: () =>
+            isLogin ? (
+              <TouchableOpacity style={{ paddingHorizontal: 20 }} onPress={handleClearData}>
+                <Entypo name="log-out" size={24} color="black" />
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                style={{ paddingHorizontal: 20 }}
+                onPress={() => {
+                  navigation.navigate('Login');
+                }}
+              >
+                <Entypo name="login" size={24} color="black" />
+              </TouchableOpacity>
+            ),
         }}
       />
       {/* <Drawer.Screen
@@ -56,40 +90,76 @@ function DrawerScreen({ navigation }) {
           ),
         }}
       /> */}
-      <Drawer.Screen
-        name="CreateQr"
-        component={CreateQRScreen}
-        options={{
-          title: 'Cipta Kod QR',
-          headerStyle: { ...styles.header },
-        }}
-      />
-      <Drawer.Screen
-        name="SenaraiTandas"
-        component={SenaraiTandasScreen}
-        options={{
-          title: 'Senarai Tandas',
-          headerStyle: { ...styles.header },
-        }}
-      />
-      <Drawer.Screen
-        name="SenaraiPekerja"
-        component={SenaraiPekerjaScreen}
-        options={{
-          title: 'Senarai Pekerja',
-          headerStyle: { ...styles.header },
-          headerRight: () => (
-            <TouchableOpacity
-              style={{ paddingHorizontal: 20 }}
-              onPress={() => {
-                navigation.navigate('CreatePekerja');
-              }}
-            >
-              <AntDesign name="adduser" size={24} color="black" />
-            </TouchableOpacity>
-          ),
-        }}
-      />
+      {isLogin && (
+        <Drawer.Screen
+          name="SenaraiTandas"
+          component={SenaraiTandasScreen}
+          options={{
+            title: 'Senarai Tandas',
+            headerStyle: { ...styles.header },
+            headerRight: () => (
+              <TouchableOpacity
+                style={{ paddingHorizontal: 20 }}
+                onPress={() => {
+                  navigation.navigate('CreateQRTandas');
+                }}
+              >
+                <Octicons name="diff-added" size={24} color="black" />
+              </TouchableOpacity>
+            ),
+          }}
+        />
+      )}
+      {isLogin && (
+        <Drawer.Screen
+          name="SenaraiSurau"
+          component={SenaraiSurauScreen}
+          options={{
+            title: 'Senarai Surau',
+            headerStyle: { ...styles.header },
+            headerRight: () => (
+              <TouchableOpacity
+                style={{ paddingHorizontal: 20 }}
+                onPress={() => {
+                  navigation.navigate('CreateQRSurau');
+                }}
+              >
+                <Octicons name="diff-added" size={24} color="black" />
+              </TouchableOpacity>
+            ),
+          }}
+        />
+      )}
+      {isLogin && (
+        <Drawer.Screen
+          name="SenaraiPekerja"
+          component={SenaraiPekerjaScreen}
+          options={{
+            title: 'Senarai Pekerja',
+            headerStyle: { ...styles.header },
+            headerRight: () => (
+              <TouchableOpacity
+                style={{ paddingHorizontal: 20 }}
+                onPress={() => {
+                  navigation.navigate('CreatePekerja');
+                }}
+              >
+                <AntDesign name="adduser" size={24} color="black" />
+              </TouchableOpacity>
+            ),
+          }}
+        />
+      )}
+      {isLogin && (
+        <Drawer.Screen
+          name="ReportWeekly"
+          component={ReportWeeklyScreen}
+          options={{
+            title: 'Laporan Mingguan',
+            headerStyle: { ...styles.header },
+          }}
+        />
+      )}
     </Drawer.Navigator>
   );
 }

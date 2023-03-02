@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useIsFocused } from '@react-navigation/native';
-import { useEffect, useState } from 'react';
-import { Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useState } from 'react';
+import { Modal, Pressable, StyleSheet, Text, TextInput, ToastAndroid, View } from 'react-native';
 import Supabase from '../config/initSupabase';
 
 export default function LoginScreen({ onClose, navigation, route }) {
@@ -31,38 +31,38 @@ export default function LoginScreen({ onClose, navigation, route }) {
         await AsyncStorage.setItem('@MySuperPass', pass);
       } catch (error) {
         console.error(error);
-        // Error retrieving data
       }
-      navigation.navigate('Dashboard');
+      ToastAndroid.show('Menu telah dibuka', ToastAndroid.BOTTOM);
+      navigation.pop();
     } else {
       setError('Password salah.');
       try {
         return await AsyncStorage.removeItem('@MySuperPass');
-      } catch (exception) {
-        console.error(exception);
+      } catch (e) {
+        console.error(e);
       }
     }
   };
 
-  useEffect(() => {
-    const getAsync = async () => {
-      try {
-        const value = await AsyncStoragse.getItem('@MySuperPass');
-        const routes = navigation.getState()?.routes;
-        const prevRoute = routes;
+  // useEffect(() => {
+  //   const getAsync = async () => {
+  //     try {
+  //       const value = await AsyncStorage.getItem('@MySuperPass');
+  //       const routes = navigation.getState()?.routes;
+  //       const prevRoute = routes;
 
-        // if(value ){
-        //   navigation.navigate('Dashboard');
-        // }else{
-        //   navigation.navigate('Report');
-        // }
-      } catch (error) {
-        console.error(error);
-      }
-    };
+  //       // if(value ){
+  //       //   navigation.navigate('Dashboard');
+  //       // }else{
+  //       //   navigation.navigate('Report');
+  //       // }
+  //     } catch (error) {
+  //       console.error(error);
+  //     }
+  //   };
 
-    getAsync();
-  }, [isFocused]);
+  //   getAsync();
+  // }, [isFocused]);
 
   return (
     // <View style={styles.centeredView}>
@@ -84,7 +84,7 @@ export default function LoginScreen({ onClose, navigation, route }) {
           <View style={{ flexDirection: 'row', marginTop: 20 }}>
             <Pressable
               style={[styles.button, styles.buttonClose, { marginRight: 10 }]}
-              onPress={onClose}
+              onPress={() => navigation.pop()}
             >
               <Text style={{ color: 'white', fontWeight: 'bold' }}>Tutup</Text>
             </Pressable>
