@@ -17,7 +17,7 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "myqrproject.sampleapps"
+      "bundleIdentifier": "com.mtcsynergy.cleanerlog"
     },
     "android": {
       "package": "myqrproject.sampleapps",

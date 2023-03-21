@@ -1,6 +1,11 @@
 {
   "build": {
     "preview": {
+      "distribution": "internal",
+      "ios": {
+        "enterpriseProvisioning": "universal",
+        "resourceClass": "m1-medium"
+      },
       "android": {
         "buildType": "apk"
       }
