@@ -9,7 +9,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
 import Supabase from '../config/initSupabase';
 
@@ -23,20 +23,22 @@ const Item = ({ data, label }) => (
       marginVertical: 5,
     }}
   >
-    <View style={{flex:4, flexDirection: 'row', justifyContent: 'flex-start', flexWrap: 'wrap' }}>
+    <View style={{ flex: 4, flexDirection: 'row', justifyContent: 'flex-start', flexWrap: 'wrap' }}>
       {data.gender === 1 ? (
         <Ionicons name="man-sharp" size={20} color="blue" />
       ) : (
         <Ionicons name="woman-sharp" size={18} color="deeppink" />
       )}
-      <Text style={{ fontWeight: '500',flexShrink: 1 }}>
+      <Text style={{ fontWeight: '500', flexShrink: 1 }}>
         {' '}
         {label} {data.name}
         {data.gender === 1 ? ' (L)' : ' (P)'}
       </Text>
       <Text> - </Text>
       <Text style={{ textTransform: 'capitalize', fontWeight: '500' }}>{data.building}</Text>
-      <Text style={{ fontWeight: '500',flexWrap: 'wrap',flexShrink: 1 }} >{` Tingkat ${data.floor}`}</Text>
+      <Text
+        style={{ fontWeight: '500', flexWrap: 'wrap', flexShrink: 1 }}
+      >{` Tingkat ${data.floor}`}</Text>
     </View>
   </View>
 );
@@ -94,7 +96,7 @@ export default function RoomScreen({ navigation }) {
       <View style={{ padding: 20 }}>
         {loading && <ActivityIndicator style={{ marginTop: 40 }} color={'black'} size={50} />}
         {list?.surau?.length > 0 && (
-          <View style={{ maxHeight: list?.tandas?.length > 0 ?'50%' : '100%', }}>
+          <View style={{ maxHeight: list?.tandas?.length > 0 ? '50%' : '100%' }}>
             <Text style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 10 }}>
               Senarai Surau
             </Text>

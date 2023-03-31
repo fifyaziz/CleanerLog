@@ -12,7 +12,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
 import { Snackbar } from 'react-native-paper';
 import Supabase from '../config/initSupabase';
@@ -387,9 +387,11 @@ export default function NameScreen({ route = {}, navigation }) {
           visible={vis}
           onDismiss={() => setVis(false)}
           duration={1000}
-          style={{ backgroundColor: "#00000000",opacity: 0.6 }}
+          style={{ backgroundColor: '#00000000', opacity: 0.6 }}
         >
-          <View style={{ flexDirection: 'row', justifyContent: 'center', backgroundColor: "#00000000"}}>
+          <View
+            style={{ flexDirection: 'row', justifyContent: 'center', backgroundColor: '#00000000' }}
+          >
             <View
               style={{
                 borderRadius: 50,
