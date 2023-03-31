@@ -14,7 +14,7 @@ import {
   TextInput,
   ToastAndroid,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import QRCode from 'react-native-qrcode-svg';
@@ -117,7 +117,10 @@ export default function EditQRScreen({ route, navigation }) {
       })
       .eq('id', routeData.id);
     if (status === 204) {
-      ToastAndroid.show(`Maklumat ${routeData.is_surau ? 'surau' : 'tandas'} berjaya dikemaskini.!`, ToastAndroid.BOTTOM);
+      ToastAndroid.show(
+        `Maklumat ${routeData.is_surau ? 'surau' : 'tandas'} berjaya dikemaskini.!`,
+        ToastAndroid.BOTTOM
+      );
     }
     if (error) {
       console.error('error', error);

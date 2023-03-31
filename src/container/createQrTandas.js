@@ -13,7 +13,7 @@ import {
   TextInput,
   ToastAndroid,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import QRCode from 'react-native-qrcode-svg';
@@ -106,7 +106,7 @@ export default function CreateQRTandasScreen({ navigation }) {
         third_out: masaKeluarKetiga,
         fourth_in: masaMasukKeempat,
         fourth_out: masaKeluarKeempat,
-        is_surau: false
+        is_surau: false,
       });
       if (status === 201) {
         navigation.pop();

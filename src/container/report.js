@@ -26,8 +26,8 @@ export default function ReportScreen({ navigation }) {
   const fetchData = async () => {
     const { data: dataFetch } = await Supabase.from('check_in_out')
       .select()
-      .gte('check_in', before)
-      .lte('check_in', after)
+      .gte('check_out', before)
+      .lte('check_out', after)
       .order('id', { ascending: false });
 
     setListTop3(dataFetch);

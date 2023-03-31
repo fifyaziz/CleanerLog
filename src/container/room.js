@@ -9,7 +9,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
 import Supabase from '../config/initSupabase';
 
@@ -23,20 +23,22 @@ const Item = ({ data, label }) => (
       marginVertical: 5,
     }}
   >
-    <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
+    <View style={{ flex: 4, flexDirection: 'row', justifyContent: 'flex-start', flexWrap: 'wrap' }}>
       {data.gender === 1 ? (
         <Ionicons name="man-sharp" size={20} color="blue" />
       ) : (
         <Ionicons name="woman-sharp" size={18} color="deeppink" />
       )}
-      <Text style={{ fontWeight: '500' }}>
+      <Text style={{ fontWeight: '500', flexShrink: 1 }}>
         {' '}
         {label} {data.name}
         {data.gender === 1 ? ' (L)' : ' (P)'}
       </Text>
       <Text> - </Text>
       <Text style={{ textTransform: 'capitalize', fontWeight: '500' }}>{data.building}</Text>
-      <Text style={{ fontWeight: '500' }}>{` Tingkat ${data.floor}`}</Text>
+      <Text
+        style={{ fontWeight: '500', flexWrap: 'wrap', flexShrink: 1 }}
+      >{` Tingkat ${data.floor}`}</Text>
     </View>
   </View>
 );
@@ -52,8 +54,9 @@ export default function RoomScreen({ navigation }) {
   useFocusEffect(
     useCallback(() => {
       const fetchData = async () => {
-        const { data: dataFetch } = await Supabase.from('service_area').select()
-        .order('order', { ascending: true });
+        const { data: dataFetch } = await Supabase.from('service_area')
+          .select()
+          .order('order', { ascending: true });
         const filterSurau = dataFetch?.filter((a) => a.is_surau);
         const filterTandas = dataFetch?.filter((a) => !a.is_surau);
         try {
@@ -90,45 +93,48 @@ export default function RoomScreen({ navigation }) {
 
   return (
     <SafeAreaView style={[styles.container, { padding: 20 }]}>
-      <View></View>
-      {loading && <ActivityIndicator style={{ marginTop: 40 }} color={'black'} size={50} />}
-      {list?.surau?.length > 0 && (
-        <View style={{ maxHeight: '50%' }}>
-          <Text style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 10 }}>Senarai Surau</Text>
-          <FlatList
-            data={list?.surau}
-            renderItem={({ item }) => (
-              <TouchableOpacity onPress={() => handleSelect(item)}>
-                <Item data={item} label="Surau" />
-              </TouchableOpacity>
-            )}
-            keyExtractor={(item) => item.id}
-          />
-        </View>
-      )}
-      {list?.tandas?.length > 0 && (
-        <View>
-          <Text
-            style={{
-              fontSize: 16,
-              fontWeight: 'bold',
-              marginBottom: 10,
-              marginTop: list?.surau?.length > 0 ? 20 : 0,
-            }}
-          >
-            Senarai Tandas
-          </Text>
-          <FlatList
-            data={list?.tandas}
-            renderItem={({ item }) => (
-              <TouchableOpacity onPress={() => handleSelect(item)}>
-                <Item data={item} label="Tandas" />
-              </TouchableOpacity>
-            )}
-            keyExtractor={(item) => item.id}
-          />
-        </View>
-      )}
+      <View style={{ padding: 20 }}>
+        {loading && <ActivityIndicator style={{ marginTop: 40 }} color={'black'} size={50} />}
+        {list?.surau?.length > 0 && (
+          <View style={{ maxHeight: list?.tandas?.length > 0 ? '50%' : '100%' }}>
+            <Text style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 10 }}>
+              Senarai Surau
+            </Text>
+            <FlatList
+              data={list?.surau}
+              renderItem={({ item }) => (
+                <TouchableOpacity onPress={() => handleSelect(item)}>
+                  <Item data={item} label="Surau" />
+                </TouchableOpacity>
+              )}
+              keyExtractor={(item) => item.id}
+            />
+          </View>
+        )}
+        {list?.tandas?.length > 0 && (
+          <View>
+            <Text
+              style={{
+                fontSize: 16,
+                fontWeight: 'bold',
+                marginBottom: 10,
+                marginTop: list?.surau?.length > 0 ? 20 : 0,
+              }}
+            >
+              Senarai Tandas
+            </Text>
+            <FlatList
+              data={list?.tandas}
+              renderItem={({ item }) => (
+                <TouchableOpacity onPress={() => handleSelect(item)}>
+                  <Item data={item} label="Tandas" />
+                </TouchableOpacity>
+              )}
+              keyExtractor={(item) => item.id}
+            />
+          </View>
+        )}
+      </View>
     </SafeAreaView>
   );
 }

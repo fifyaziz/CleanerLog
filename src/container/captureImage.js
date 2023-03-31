@@ -100,7 +100,7 @@ export default function CaptureImageScreen({ route }) {
                     source={require('../../assets/logo.png')}
                   />
                   <Text style={{ fontSize: 25, fontWeight: '600', padding: 3 }}>
-                    MTC SYNERGY SDN BHD
+                    MTC SYNERGY Sdn Bhd
                   </Text>
 
                   <View

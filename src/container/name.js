@@ -11,12 +11,13 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  ToastAndroid,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { Snackbar } from 'react-native-paper';
 import Supabase from '../config/initSupabase';
 
+const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
 const headerSize = parseInt((windowWidth * 5) / 100);
 const titleSize = parseInt((windowWidth * 4) / 100);
@@ -34,38 +35,60 @@ export default function NameScreen({ route = {}, navigation }) {
   const [pickerStaff, setPickerStaff] = useState('');
   const [listPickerStaff, setListPickerStaff] = useState([]);
 
+  const [vis, setVis] = useState(true);
+
   const handleNext = async () => {
-    try {
-      const getName = await AsyncStorage.getItem('@storage_checkin');
-      const getId = await AsyncStorage.getItem('@storage_checkin_id');
-      const getDate = await AsyncStorage.getItem('@storage_checkin_date');
-      const getPhoto = await AsyncStorage.getItem('@storage_checkin_photo');
-      if (inputName) {
-        const payload = {
-          name: getName,
-          floor: routeData?.floor,
-          building: routeData?.building,
-          gender: routeData?.gender,
-          check_in: getDate,
-          photo_in: getPhoto,
-          check_out: new Date().toISOString(),
-          photo_out: imageBase64,
-          toilet_name: routeData?.name,
-          id_staff: getId,
-          is_surau: routeData.is_surau,
-        };
-        const { status, error } = await Supabase.from('check_in_out').insert(payload);
-        if (status === 201) {
-          ToastAndroid.show('Maklumat log masuk berjaya disimpan.!', ToastAndroid.BOTTOM);
-          navigation.pop();
-          navigation.navigate('ReportStaff', payload);
-        }
-      } else {
-        ToastAndroid.show('Sila masukkan nama', ToastAndroid.TOP);
-      }
-    } catch (e) {
-      console.error('ehn', e);
-    }
+    const getName = await AsyncStorage.getItem('@storage_checkin');
+    const getId = await AsyncStorage.getItem('@storage_checkin_id');
+    const getDate = await AsyncStorage.getItem('@storage_checkin_date');
+    const getPhoto = await AsyncStorage.getItem('@storage_checkin_photo');
+    const payload = {
+      name: getName,
+      floor: routeData?.floor,
+      building: routeData?.building,
+      gender: routeData?.gender,
+      check_in: parseInt(getDate),
+      photo_in: getPhoto,
+      check_out: new Date().getTime(),
+      photo_out: imageBase64,
+      toilet_name: routeData?.name,
+      id_staff: getId,
+      is_surau: routeData.is_surau,
+    };
+    console.log('payload', payload);
+    navigation.navigate('ReportStaff', payload);
+
+    // try {
+    //   const getName = await AsyncStorage.getItem('@storage_checkin');
+    //   const getId = await AsyncStorage.getItem('@storage_checkin_id');
+    //   const getDate = await AsyncStorage.getItem('@storage_checkin_date');
+    //   const getPhoto = await AsyncStorage.getItem('@storage_checkin_photo');
+    //   if (inputName) {
+    //     const payload = {
+    //       name: getName,
+    //       floor: routeData?.floor,
+    //       building: routeData?.building,
+    //       gender: routeData?.gender,
+    //       check_in: getDate,
+    //       photo_in: getPhoto,
+    //       check_out: new Date().toISOString(),
+    //       photo_out: imageBase64,
+    //       toilet_name: routeData?.name,
+    //       id_staff: getId,
+    //       is_surau: routeData.is_surau,
+    //     };
+    //     const { status, error } = await Supabase.from('check_in_out').insert(payload);
+    //     if (status === 201) {
+    //       ToastAndroid.show('Maklumat log masuk berjaya disimpan.!', ToastAndroid.BOTTOM);
+    //       navigation.pop();
+    //       navigation.navigate('ReportStaff', payload);
+    //     }
+    //   } else {
+    //     ToastAndroid.show('Sila masukkan nama', ToastAndroid.TOP);
+    //   }
+    // } catch (e) {
+    //   console.error('ehn', e);
+    // }
   };
 
   const handleCheckIn = async () => {
@@ -73,18 +96,20 @@ export default function NameScreen({ route = {}, navigation }) {
       try {
         await AsyncStorage.setItem('@storage_checkin', inputName);
         await AsyncStorage.setItem('@storage_checkin_id', inputId);
-        await AsyncStorage.setItem('@storage_checkin_date', new Date().toISOString());
+        await AsyncStorage.setItem('@storage_checkin_date', new Date().getTime().toString());
         await AsyncStorage.setItem('@storage_data', JSON.stringify(routeData));
         await AsyncStorage.setItem('@storage_checkin_photo', imageBase64);
+        console.log('getDate', new Date().getTime().toString());
 
-        ToastAndroid.show('Log Masuk Telah Berjaya', ToastAndroid.LONG);
+        // ToastAndroid.show('Log Masuk Telah Berjaya', ToastAndroid.LONG);
+
         navigation.pop();
         navigation.navigate('Cleaning');
       } catch (e) {
         console.error('ehci', e);
       }
     } else {
-      ToastAndroid.show('Sila masukkan nama', ToastAndroid.TOP);
+      // ToastAndroid.show('Sila masukkan nama', ToastAndroid.TOP);
     }
   };
 
@@ -163,198 +188,222 @@ export default function NameScreen({ route = {}, navigation }) {
   }, [routeData?.uri]);
 
   return (
-    <ScrollView>
-      <View style={[styles.container, { padding: 30 }]}>
-        {routeData && (
-          <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-            <Text style={{ fontSize: 20, fontWeight: '600' }}>
-              {`${routeData.is_surau ? 'Surau' : 'Tandas'} ${routeData?.name}${
-                routeData?.gender == 1 ? ' (L)' : ' (P)'
-              }`}
-            </Text>
-            <Text style={{ fontSize: 20, fontWeight: '600' }}>
-              <Text style={{ textTransform: 'capitalize' }}>{routeData?.building}</Text> Tingkat{' '}
-              {routeData?.floor}
-            </Text>
-            <View style={{ width: 50, height: 10, borderBottomWidth: 1 }}></View>
-          </View>
-        )}
-        <View style={styles.container}>
-          {nameStored && (
-            <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 30 }}>
-              <Text style={{ fontSize: 16, fontWeight: '600', textTransform: 'capitalize' }}>
-                Selamat Kembali
+    <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+      <View style={{ flex: 1, flexGrow: 1 }}>
+        <View style={[styles.container, { padding: 30 }]}>
+          {routeData && (
+            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+              <Text style={{ fontSize: 20, fontWeight: '600' }}>
+                {`${routeData.is_surau ? 'Surau' : 'Tandas'} ${routeData?.name}${
+                  routeData?.gender == 1 ? ' (L)' : ' (P)'
+                }`}
               </Text>
-              <Text
-                style={{
-                  textAlign: 'center',
-                  fontSize: 20,
-                  fontWeight: '900',
-                  paddingTop: 10,
-                }}
-              >
-                {inputName}
+              <Text style={{ fontSize: 20, fontWeight: '600' }}>
+                <Text style={{ textTransform: 'capitalize' }}>{routeData?.building}</Text> Tingkat{' '}
+                {routeData?.floor}
               </Text>
+              <View style={{ width: 50, height: 10, borderBottomWidth: 1 }}></View>
             </View>
           )}
+          <View style={styles.container}>
+            {nameStored && (
+              <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 30 }}>
+                <Text style={{ fontSize: 16, fontWeight: '600', textTransform: 'capitalize' }}>
+                  Selamat Kembali
+                </Text>
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    fontSize: 20,
+                    fontWeight: '900',
+                    paddingTop: 10,
+                  }}
+                >
+                  {inputName}
+                </Text>
+              </View>
+            )}
 
-          {!nameStored && (
-            <View style={{ paddingTop: 20 }}>
-              <Text
-                style={{
-                  fontSize: 14,
-                }}
-              >
-                Sila Pilih Nama Anda
-              </Text>
-              {/* <TextInput
+            {!nameStored && (
+              <View style={{ paddingTop: 20 }}>
+                <Text
+                  style={{
+                    fontSize: 14,
+                  }}
+                >
+                  Sila Pilih Nama Anda
+                </Text>
+                {/* <TextInput
                 placeholder="Nama Pekerja"
                 style={{ borderWidth: 1, borderRadius: 5, padding: 10, marginTop: 10 }}
                 onChangeText={setInputName}
                 value={inputName}
               /> */}
-              <View style={{ borderWidth: 1, borderRadius: 10, marginTop: 10, marginBottom: 20 }}>
-                <Picker
-                  selectedValue={pickerStaff}
-                  onValueChange={(itemValue, itemIndex) => {
-                    listPickerStaff.map(
-                      (a) => a.staff_name === itemValue && setInputID(a.staff_id)
-                    );
-                    setInputName(itemValue);
-                    setPickerStaff(itemValue);
-                  }}
-                >
-                  <Picker.Item label="Pilih Nama" value="" />
-                  {listPickerStaff?.map((a, i) => (
-                    <Picker.Item
-                      key={i}
-                      label={i + 1 + ' - ' + a.staff_name}
-                      value={a.staff_name}
-                    />
-                  ))}
-                </Picker>
+                <View style={{ borderWidth: 1, borderRadius: 10, marginTop: 10, marginBottom: 20 }}>
+                  <Picker
+                    selectedValue={pickerStaff}
+                    onValueChange={(itemValue, itemIndex) => {
+                      listPickerStaff.map(
+                        (a) => a.staff_name === itemValue && setInputID(a.staff_id)
+                      );
+                      setInputName(itemValue);
+                      setPickerStaff(itemValue);
+                    }}
+                  >
+                    <Picker.Item label="Pilih Nama" value="" />
+                    {listPickerStaff?.map((a, i) => (
+                      <Picker.Item
+                        key={i}
+                        label={i + 1 + ' - ' + a.staff_name}
+                        value={a.staff_name}
+                      />
+                    ))}
+                  </Picker>
+                </View>
               </View>
+            )}
+
+            <Text
+              style={{
+                fontSize: 14,
+                marginTop: nameStored ? 30 : 3,
+                textAlign: nameStored ? 'center' : 'left',
+              }}
+            >
+              Sila lampirkan gambar
+            </Text>
+            <View style={{ marginTop: 10, flexDirection: 'row', justifyContent: 'center' }}>
+              <TouchableOpacity
+                style={{
+                  borderWidth: 1,
+                  borderColor: 'deepskyblue',
+                  borderRadius: 10,
+                  paddingVertical: 10,
+                  paddingHorizontal: 20,
+                  marginHorizontal: 5,
+                }}
+                onPress={() => navigation.navigate('Camera', routeData)}
+              >
+                <View
+                  style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}
+                >
+                  <Entypo name="camera" size={24} color="deepskyblue" />
+                  <Text
+                    style={{
+                      color: 'deepskyblue',
+                      textAlign: 'center',
+                      fontWeight: '500',
+                      paddingHorizontal: 10,
+                    }}
+                  >
+                    Buka Kamera
+                  </Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  borderWidth: 1,
+                  borderColor: 'deepskyblue',
+                  borderRadius: 10,
+                  paddingVertical: 10,
+                  paddingHorizontal: 20,
+                  marginHorizontal: 5,
+                }}
+                onPress={pickImage}
+              >
+                <View
+                  style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}
+                >
+                  <FontAwesome name="file-picture-o" size={24} color="deepskyblue" />
+                  <Text
+                    style={{
+                      color: 'deepskyblue',
+                      textAlign: 'center',
+                      fontWeight: '500',
+                      paddingHorizontal: 10,
+                    }}
+                  >
+                    Buka Galeri
+                  </Text>
+                </View>
+              </TouchableOpacity>
             </View>
-          )}
 
-          <Text
-            style={{
-              fontSize: 14,
-              marginTop: nameStored ? 30 : 3,
-              textAlign: nameStored ? 'center' : 'left',
-            }}
-          >
-            Sila lampirkan gambar
-          </Text>
-          <View style={{ marginTop: 10, flexDirection: 'row', justifyContent: 'center' }}>
-            <TouchableOpacity
-              style={{
-                borderWidth: 1,
-                borderColor: 'deepskyblue',
-                borderRadius: 10,
-                paddingVertical: 10,
-                paddingHorizontal: 20,
-                marginHorizontal: 5,
-              }}
-              onPress={() => navigation.navigate('Camera', routeData)}
-            >
-              <View
-                style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}
+            <View style={{ marginTop: 20 }}>
+              {image && (
+                <Image
+                  source={{ uri: image }}
+                  style={{ width: '100%', height: 200, borderRadius: 10 }}
+                />
+              )}
+            </View>
+
+            {nameStored ? (
+              <TouchableOpacity
+                style={{
+                  backgroundColor: !inputName ? 'lightgrey' : 'deepskyblue',
+                  borderRadius: 10,
+                  paddingVertical: 15,
+                  marginVertical: 20,
+                }}
+                onPress={() => handleNext()}
               >
-                <Entypo name="camera" size={24} color="deepskyblue" />
                 <Text
                   style={{
-                    color: 'deepskyblue',
-                    textAlign: 'center',
+                    color: !inputName ? 'grey' : '#fff',
                     fontWeight: '500',
-                    paddingHorizontal: 10,
+                    textAlign: 'center',
                   }}
                 >
-                  Buka Kamera
+                  Log Keluar
                 </Text>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={{
-                borderWidth: 1,
-                borderColor: 'deepskyblue',
-                borderRadius: 10,
-                paddingVertical: 10,
-                paddingHorizontal: 20,
-                marginHorizontal: 5,
-              }}
-              onPress={pickImage}
-            >
-              <View
-                style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                disabled={!inputName}
+                style={{
+                  backgroundColor: !inputName ? 'lightgrey' : 'deepskyblue',
+                  borderRadius: 10,
+                  paddingVertical: 15,
+                  marginVertical: 20,
+                }}
+                onPress={() => handleCheckIn()}
               >
-                <FontAwesome name="file-picture-o" size={24} color="deepskyblue" />
                 <Text
                   style={{
-                    color: 'deepskyblue',
-                    textAlign: 'center',
+                    color: !inputName ? 'grey' : '#fff',
                     fontWeight: '500',
-                    paddingHorizontal: 10,
+                    textAlign: 'center',
                   }}
                 >
-                  Buka Galeri
+                  Log Masuk
                 </Text>
-              </View>
-            </TouchableOpacity>
-          </View>
-
-          <View style={{ marginTop: 20 }}>
-            {image && (
-              <Image
-                source={{ uri: image }}
-                style={{ width: '100%', height: 200, borderRadius: 10 }}
-              />
+              </TouchableOpacity>
             )}
           </View>
-
-          {nameStored ? (
-            <TouchableOpacity
-              style={{
-                backgroundColor: !inputName ? 'lightgrey' : 'deepskyblue',
-                borderRadius: 10,
-                paddingVertical: 15,
-                marginVertical: 20,
-              }}
-              onPress={() => handleNext()}
-            >
-              <Text
-                style={{
-                  color: !inputName ? 'grey' : '#fff',
-                  fontWeight: '500',
-                  textAlign: 'center',
-                }}
-              >
-                Log Keluar
-              </Text>
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity
-              disabled={!inputName}
-              style={{
-                backgroundColor: !inputName ? 'lightgrey' : 'deepskyblue',
-                borderRadius: 10,
-                paddingVertical: 15,
-                marginVertical: 20,
-              }}
-              onPress={() => handleCheckIn()}
-            >
-              <Text
-                style={{
-                  color: !inputName ? 'grey' : '#fff',
-                  fontWeight: '500',
-                  textAlign: 'center',
-                }}
-              >
-                Log Masuk
-              </Text>
-            </TouchableOpacity>
-          )}
         </View>
+
+        <Snackbar
+          visible={vis}
+          onDismiss={() => setVis(false)}
+          duration={1000}
+          style={{ backgroundColor: '#00000000', opacity: 0.6 }}
+        >
+          <View
+            style={{ flexDirection: 'row', justifyContent: 'center', backgroundColor: '#00000000' }}
+          >
+            <View
+              style={{
+                borderRadius: 50,
+                backgroundColor: 'palegreen',
+                paddingVertical: 10,
+                paddingHorizontal: 30,
+              }}
+            >
+              <Text>Hey there! I'm a Snackbar.</Text>
+            </View>
+          </View>
+        </Snackbar>
       </View>
     </ScrollView>
   );
