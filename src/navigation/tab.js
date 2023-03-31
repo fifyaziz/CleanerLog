@@ -8,10 +8,12 @@ import { useEffect } from 'react';
 import {
   AppState,
   Dimensions,
+  Platform,
   StyleSheet,
   Text,
   ToastAndroid,
   TouchableOpacity,
+  View,
 } from 'react-native';
 import ScannerScreen from '../container/qrScanner';
 import ReportScreen from '../container/report';
@@ -198,8 +200,9 @@ export default function TapNav({ navigation }) {
           paddingTop: 30,
         },
         tabBarStyle: {
-          height: 60,
+          height: Platform.OS === 'ios' ? (Platform.isPad == true ? 120 : 80) : 60,
         },
+        tabBarLabelPosition: 'below-icon',
         tabBarLabel: ({ focused, color }) => {
           let screenName = '';
           let result = '';
@@ -240,12 +243,24 @@ export default function TapNav({ navigation }) {
           }
 
           return (
-            <Ionicons
-              name={iconName}
-              style={{ position: focused ? 'absolute' : 'relative', top: focused ? -20 : 0 }}
-              size={focused ? size + 20 : size}
-              color={color}
-            />
+            <View
+              style={{
+                position: 'absolute',
+                top: focused ? -20 : 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                justifyContent: 'center',
+                alignItems: 'center',
+                alignSelf: 'center',
+              }}
+            >
+              <Ionicons
+                name={iconName}
+                size={focused ? (Platform.isPad == true ? size + 60 : size + 20) : size}
+                color={color}
+              />
+            </View>
           );
         },
         tabBarActiveTintColor: 'tomato',

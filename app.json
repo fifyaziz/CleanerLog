@@ -17,7 +17,10 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "myqrproject.sampleapps"
+      "bundleIdentifier": "myqrproject.sampleapps",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Allow $(PRODUCT_NAME) to access camera and take photos for your submission task."
+      }
     },
     "android": {
       "package": "myqrproject.sampleapps",
@@ -36,10 +39,22 @@
     },
     "plugins": [
       [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access camera and take photos for your submission task."
+        }
+      ],
+      [
+        "expo-barcode-scanner",
+        {
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access camera and scan the QR code."
+        }
+      ],
+      [
         "expo-media-library",
         {
-          "photosPermission": "Allow $(PRODUCT_NAME) to access your photos.",
-          "savePhotosPermission": "Allow $(PRODUCT_NAME) to save photos.",
+          "photosPermission": "Allow $(PRODUCT_NAME) to access your photos and upload for your submission task.",
+          "savePhotosPermission": "Allow $(PRODUCT_NAME) to save photos after successfully created services area.",
           "isAccessMediaLocationEnabled": true
         }
       ]
