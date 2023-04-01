@@ -6,11 +6,13 @@ import { useEffect, useState } from 'react';
 import {
   Alert,
   Dimensions,
+  Modal,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 
 const windowWidth = Dimensions.get('window').width;
@@ -27,6 +29,8 @@ export default function ScannerScreen() {
   const [isRetryButton, setIsRetryButton] = useState(false);
 
   const [name, setName] = useState();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalData, setModalData] = useState();
 
   const handleBarCodeScanned = async ({ data }) => {
     setScanned(false);
@@ -40,7 +44,10 @@ export default function ScannerScreen() {
           if (JSON.parse(getData)?.name === JSON.parse(data).name) {
             navigation.navigate('Name', data);
           } else {
-            Alert.alert('Kod QR tidak sama');
+            setScanned(true);
+            setModalVisible(!modalVisible);
+            setIsVisible(!isVisible);
+            setModalData(JSON.parse(getData));
           }
         } catch (e) {
           console.error('eufs', e);
@@ -145,6 +152,51 @@ export default function ScannerScreen() {
           </Text>
         </View>
       </View>
+
+      <Modal
+        animationType="slide"
+        //animationInTiming = {13900}
+        transparent={true}
+        visible={modalVisible}
+        // animationOut = "slide"
+        swipeDirection="down"
+        style={{ opacity: 0.5 }}
+        onRequestClose={() => {
+          Alert.alert('Modal has been closed.');
+        }}
+      >
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text style={[styles.modalText, { fontSize: 18, fontWeight: 'bold' }]}>
+              Kod QR tidak sama
+            </Text>
+            <Text style={styles.modalText}>
+              Anda telah Log Masuk di{' '}
+              <Text style={{ fontWeight: 'bold' }}>
+                {modalData?.name}, {modalData?.building} Tingkat {modalData?.floor}
+              </Text>
+            </Text>
+
+            <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+              <TouchableOpacity
+                style={{
+                  ...styles.openButton,
+                  borderWidth: 1,
+                  borderColor: '#2196F3',
+                  backgroundColor: 'white',
+                  marginHorizontal: 10,
+                }}
+                onPress={() => {
+                  setModalVisible(!modalVisible);
+                  setScanned(false);
+                }}
+              >
+                <Text style={[styles.textStyle, { color: '#2196F3' }]}>Kembali</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }
@@ -157,6 +209,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-start',
     paddingVertical: 20,
+    paddingHorizontal: Platform.OS === 'ios' ? 20 : 0,
   },
   scanAgain: {
     marginTop: -70,
@@ -181,5 +234,42 @@ const styles = StyleSheet.create({
     fontSize: textSize,
     fontWeight: '500',
     marginBottom: 15,
+  },
+
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 22,
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  openButton: {
+    backgroundColor: '#F194FF',
+    borderRadius: 10,
+    padding: 10,
+    elevation: 2,
+  },
+  textStyle: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: 'center',
   },
 });

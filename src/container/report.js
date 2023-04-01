@@ -60,6 +60,9 @@ export default function ReportScreen({ navigation }) {
             const count = convert.filter((a) => a === false)?.length;
             const final = (count / countObject) * 5;
 
+            const aa = { ...a, photo_in: '', photo_out: '' };
+            // console.log('report aa : ', aa);
+
             return (
               <View key={i} style={styles.boxContainer}>
                 <TouchableOpacity onPress={() => navigation.navigate('ReportDetails', a)}>

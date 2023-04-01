@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useState } from 'react';
 import {
   Dimensions,
   Image,
@@ -6,8 +7,9 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
+import { Snackbar } from 'react-native-paper';
 import { dateTimeFormat } from '../config';
 
 const windowWidth = Dimensions.get('window').width;
@@ -18,10 +20,11 @@ const fontSize = parseInt((windowWidth * 4) / 100);
 
 export default function ReportStaffScreen({ route, navigation }) {
   const routeData = typeof route?.params === 'string' ? JSON.parse(route?.params) : route?.params;
+  const [snackbarMessage, setSnackbarMessage] = useState(true);
 
   const handleBack = async () => {
     await AsyncStorage.clear();
-    navigation.navigate('Scanner');
+    navigation.navigate('TabNav');
   };
 
   return (
@@ -112,6 +115,28 @@ export default function ReportStaffScreen({ route, navigation }) {
           </TouchableOpacity>
         </View>
       </View>
+
+      <Snackbar
+        visible={snackbarMessage}
+        onDismiss={() => setSnackbarMessage(false)}
+        duration={1000}
+        style={{ backgroundColor: '#00000000', opacity: 0.6 }}
+      >
+        <View
+          style={{ flexDirection: 'row', justifyContent: 'center', backgroundColor: '#00000000' }}
+        >
+          <View
+            style={{
+              borderRadius: 50,
+              backgroundColor: 'palegreen',
+              paddingVertical: 10,
+              paddingHorizontal: 30,
+            }}
+          >
+            <Text>Log Keluar Telah Berjaya.</Text>
+          </View>
+        </View>
+      </Snackbar>
     </ScrollView>
   );
 }

@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -91,8 +91,14 @@ export default function RoomScreen({ navigation }) {
     }, [])
   );
 
+  useEffect(() => {
+    (async () => {
+      const getDate = await AsyncStorage.getItem('@storage_checkin_date');
+    })();
+  }, []);
+
   return (
-    <SafeAreaView style={[styles.container, { padding: 20 }]}>
+    <SafeAreaView style={[styles.container]}>
       <View style={{ padding: 20 }}>
         {loading && <ActivityIndicator style={{ marginTop: 40 }} color={'black'} size={50} />}
         {list?.surau?.length > 0 && (

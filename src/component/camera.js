@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-end',
     alignItems: 'flex-end',
-    maxWidth: '65%',
+    maxWidth: '60%',
     paddingLeft: 20,
   },
   camera: {

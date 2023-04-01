@@ -1,23 +1,64 @@
+import { AntDesign, Entypo } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import * as FileSystem from 'expo-file-system';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { useCallback, useEffect, useState } from 'react';
-import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator, SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity, View
+} from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import { dateAPIFormat, dateFormat, dateTimeFormat } from '../config';
+import { dateAPIFormat, dateSlashFormat, dateTimeFormat, timeFormat } from '../config';
 import Supabase from '../config/initSupabase';
 
-export default function ReportWeeklyScreen() {
+export default function ReportWeeklyScreen({ navigation }) {
   const [lastFriday, setLastFriday] = useState();
   const [nextThursday, setNextThursday] = useState();
   const [isDatePickerVisible, setIsDatePickerVisible] = useState(0);
   const [pickerBuilding, setPickerBuilding] = useState('mall');
 
+  const [listTop3, setListTop3] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [isVisibleFilter, setIsVisibleFilter] = useState(false);
+
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    const before = `${dateAPIFormat(lastFriday)}T00:00:00.000`;
+    const after = `${dateAPIFormat(nextThursday)}T23:59:00.000`;
+
+    try {
+      const { data: dataFetch, error } =
+        pickerBuilding === 'all'
+          ? await Supabase.from('check_in_out')
+              .select()
+              .gte('check_in', before)
+              .lte('check_out', after)
+              .order('id', { ascending: false })
+          : await Supabase.from('check_in_out')
+              .select()
+              .eq('building', pickerBuilding)
+              .gte('check_in', before)
+              .lte('check_out', after)
+              .order('id', { ascending: false });
+
+      setLoading(false);
+      console.error('erroeerr', error);
+
+      if (dataFetch) {
+        setListTop3(dataFetch);
+      }
+    } catch (e) {
+      console.error('erer', e);
+    }
+  }, [lastFriday, nextThursday, pickerBuilding]);
+
   const handleKongsi = useCallback(async () => {
-    const before = `${dateAPIFormat(lastFriday)} 00:00`;
-    const after = `${dateAPIFormat(nextThursday)} 23:59`;
-    console.log(`${before} - ${after}`);
+    const before = `${dateAPIFormat(lastFriday)}T00:00:00.000`;
+    const after = `${dateAPIFormat(nextThursday)}T23:59:00.000`;
 
     const { data: dataFetch } =
       pickerBuilding === 'all'
@@ -25,11 +66,13 @@ export default function ReportWeeklyScreen() {
             .select()
             .gte('check_in', before)
             .lte('check_out', after)
+            .order('id', { ascending: false })
         : await Supabase.from('check_in_out')
             .select()
             .eq('building', pickerBuilding)
             .gte('check_in', before)
-            .lte('check_out', after);
+            .lte('check_out', after)
+            .order('id', { ascending: false });
 
     const html =
       dataFetch &&
@@ -96,10 +139,14 @@ export default function ReportWeeklyScreen() {
   const handleConfirmDatePicker = useCallback(
     (date) => {
       setIsDatePickerVisible(0);
+
+      const temp = `${dateAPIFormat(new Date(date))}${
+        isDatePickerVisible === 1 ? 'T00:00:00.000' : 'T23:59:00.000'
+      }`;
       if (isDatePickerVisible === 1) {
-        setLastFriday(date);
+        setLastFriday(temp);
       } else if (isDatePickerVisible === 2) {
-        setNextThursday(date);
+        setNextThursday(temp);
       }
     },
     [isDatePickerVisible]
@@ -109,66 +156,169 @@ export default function ReportWeeklyScreen() {
     const temp = new Date().getDate() + (6 - new Date().getDay() - 1) - 7;
     const valFri = new Date();
     valFri.setDate(temp);
-    setLastFriday(valFri);
+    setLastFriday(`${dateAPIFormat(valFri)}T00:00:00.000`);
 
     const temp1 = new Date().getDate() + (6 - new Date().getDay() + 5) - 7;
     const valThurs = new Date();
     valThurs.setDate(temp1);
-    setNextThursday(valThurs);
+    setNextThursday(`${dateAPIFormat(valThurs)}T23:59:00.000`);
+
+    setListTop3([]);
+
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity
+          style={{
+            paddingHorizontal: 20,
+          }}
+          onPress={async () => {
+            handleKongsi();
+          }}
+        >
+          <Entypo name="share" size={24} color="green" />
+        </TouchableOpacity>
+      ),
+    });
   }, []);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={{ backgroundColor: 'white' }}>
-        <Text>Bangunan</Text>
-        <View style={{ borderWidth: 1, borderRadius: 10, marginTop: 5, marginBottom: 20 }}>
-          <Picker
-            selectedValue={pickerBuilding}
-            onValueChange={(itemValue, itemIndex) => setPickerBuilding(itemValue)}
-          >
-            <Picker.Item label="Semua Bangunan" value="all" />
-            <Picker.Item label="Mall" value="mall" />
-            <Picker.Item label="Tower 1" value="t1" />
-            <Picker.Item label="Tower 2" value="t2" />
-            <Picker.Item label="Tower 3" value="t3" />
-          </Picker>
-        </View>
-        <View style={{ flexDirection: 'row' }}>
-          <View
-            style={{
-              marginHorizontal: 5,
-            }}
-          >
-            <Text>Tarikh Mula</Text>
-            <TouchableOpacity onPress={() => setIsDatePickerVisible(1)}>
-              <Text style={[styles.textInput]}>{lastFriday ? dateFormat(lastFriday) : ''}</Text>
-            </TouchableOpacity>
-          </View>
-          <View
-            style={{
-              marginHorizontal: 5,
-            }}
-          >
-            <Text>Tarikh Akhir</Text>
-            <TouchableOpacity onPress={() => setIsDatePickerVisible(2)}>
-              <Text style={[styles.textInput]}>{nextThursday ? dateFormat(nextThursday) : ''}</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        <DateTimePickerModal
-          isVisible={isDatePickerVisible > 0}
-          mode="date"
-          onConfirm={handleConfirmDatePicker}
-          onCancel={() => setIsDatePickerVisible(0)}
-        />
-
-        <View style={{ justifyContent: 'center', alignItems: 'center', margin: 30 }}>
-          <TouchableOpacity style={styles.button} onPress={() => handleKongsi()}>
-            <Text style={{ color: 'white', fontWeight: '600' }}>Jana PDF Mingguan</Text>
+    <SafeAreaView
+      style={{
+        flex: 1,
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        backgroundColor: 'white',
+      }}
+    >
+      {isVisibleFilter ? (
+        <View
+          style={{
+            borderBottomWidth: 1,
+            width: '100%',
+            paddingHorizontal: 20,
+            paddingVertical: 20,
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            backgroundColor:'aliceblue'
+          }}
+        >
+          <Text style={{ textTransform: 'capitalize', fontWeight:'bold' }}>
+            {pickerBuilding}, {dateSlashFormat(lastFriday)} - {dateSlashFormat(nextThursday)}
+          </Text>
+          <TouchableOpacity onPress={() => setIsVisibleFilter(false)}>
+            <AntDesign name="downcircleo" size={24} color="black" />
           </TouchableOpacity>
         </View>
-      </View>
+      ) : (
+        <View style={[{ paddingTop: 20, width:'100%',paddingHorizontal:'10%',
+          backgroundColor:'aliceblue'
+        }]}>
+          <Text>Bangunan</Text>
+          <View style={{ borderWidth: 1, borderRadius: 10, marginTop: 5, marginBottom: 20 }}>
+            <Picker
+              selectedValue={pickerBuilding}
+              onValueChange={(itemValue, itemIndex) => setPickerBuilding(itemValue)}
+              style={{ height: 150, padding: 0 }}
+              itemStyle={{ height: 130, padding: 0 }}
+            >
+              <Picker.Item label="Semua Bangunan" value="all" />
+              <Picker.Item label="Mall" value="mall" />
+              <Picker.Item label="Tower 1" value="t1" />
+              <Picker.Item label="Tower 2" value="t2" />
+              <Picker.Item label="Tower 3" value="t3" />
+            </Picker>
+          </View>
+          <View style={{ flexDirection: 'row', justifyContent:'center', alignItems:'center', }}>
+            <View
+              style={{
+                marginHorizontal: 5,
+              }}
+            >
+              <Text>Tarikh Mula</Text>
+              <TouchableOpacity onPress={() => setIsDatePickerVisible(1)}>
+                <Text style={[styles.textInput]}>
+                  {lastFriday ? dateSlashFormat(lastFriday) : ''}
+                </Text>
+              </TouchableOpacity>
+            </View>
+            <View
+              style={{
+                marginHorizontal: 5,
+              }}
+            >
+              <Text>Tarikh Akhir</Text>
+              <TouchableOpacity onPress={() => setIsDatePickerVisible(2)}>
+                <Text style={[styles.textInput]}>
+                  {nextThursday ? dateSlashFormat(nextThursday) : ''}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <DateTimePickerModal
+            isVisible={isDatePickerVisible > 0}
+            mode="date"
+            onConfirm={handleConfirmDatePicker}
+            onCancel={() => setIsDatePickerVisible(0)}
+            backdropStyleIOS={{ backgroundColor: 'grey' }}
+            pickerStyleIOS={{ backgroundColor: 'grey' }}
+          />
+
+          <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 30, marginBottom:listTop3?.length > 0?10:30 }}>
+            <TouchableOpacity style={styles.button} onPress={() => fetchData()}>
+              <Text style={{ color: 'white', fontWeight: '600' }}>Jana Laporan</Text>
+            </TouchableOpacity>
+            {listTop3?.length > 0 && (
+              <TouchableOpacity style={{ marginTop: 30 }} onPress={() => setIsVisibleFilter(true)}>
+                <AntDesign name="upcircleo" size={24} color="black" />
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
+      )}
+
+      {listTop3?.length > 0 && (
+        <View style={{ minWidth: '100%', borderWidth: 1, marginBottom: 10 }}></View>
+      )}
+
+      <ScrollView>
+        <View style={{ minWidth: '100%' }}>
+          {loading && <ActivityIndicator style={{ marginTop: 40 }} color={'black'} size={50} />}
+          {listTop3?.length > 0 &&
+            listTop3?.map((a, i) => {
+              const countObject = Object.keys(a).length - 7;
+
+              const convert = Object.keys(a).map(function (key) {
+                return a[key];
+              });
+              const count = convert.filter((a) => a === false)?.length;
+              const final = (count / countObject) * 5;
+
+              const payload = { ...a, photo_in: '', photo_out: '' };
+
+              return (
+                <View key={i} style={styles.boxContainer}>
+                  <View style={{ paddingHorizontal: 20 }}>
+                    <TouchableOpacity onPress={() => navigation.navigate('EditReport', payload)}>
+                      <View style={{ flexDirection: 'row' }}>
+                        <View>
+                          <Text>{a.name}</Text>
+                          <Text>
+                            {a.is_surau ? 'Surau' : 'Tandas'} {a.toilet_name}{' '}
+                            {a.gender === 1 ? '(L)' : '(P)'} -{' '}
+                            <Text style={{ textTransform: 'capitalize' }}>{a.building} </Text>
+                            Tingkat <Text style={{ textTransform: 'uppercase' }}>{a.floor}</Text>
+                          </Text>
+                          <Text>{`${timeFormat(a.check_in)} - ${timeFormat(a.check_out)}`}</Text>
+                        </View>
+                      </View>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              );
+            })}
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -204,5 +354,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     overflow: 'hidden',
     minWidth: 75,
+  },
+  boxContainer: {
+    borderBottomWidth: 1,
+    paddingVertical: 10,
+    flex: 1,
+    justifyContent: 'center',
+    width: '100%',
   },
 });

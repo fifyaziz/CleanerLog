@@ -12,6 +12,7 @@ import CreateQRSurauScreen from './src/container/createQrSurau';
 import CreateQRTandasScreen from './src/container/createQrTandas';
 import DashboardScreen from './src/container/dashboard';
 import EditQRScreen from './src/container/editQr';
+import EditReportScreen from './src/container/editReport';
 import EntryScreen from './src/container/entry';
 import HistoryScreen from './src/container/history';
 import HomeScreen from './src/container/home';
@@ -29,6 +30,7 @@ const Drawer = createDrawerNavigator();
 const Stack = createNativeStackNavigator();
 
 function App() {
+  const navigationRef = React.useRef();
   const [isLogin, setIsLogin] = React.useState(false);
 
   React.useEffect(() => {
@@ -41,10 +43,10 @@ function App() {
       }
     };
     getData();
-  }, [isLogin]);
+  }, [navigationRef]);
 
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef}>
       <Stack.Navigator initialRouteName="TabNav">
         <Stack.Group
           screenOptions={{
@@ -65,7 +67,7 @@ function App() {
           name="Name"
           component={NameScreen}
           options={{
-            title: isLogin ? 'Log Keluar' : 'Log Masuk',
+            title: 'Log Masuk/Keluar',
           }}
         />
         <Stack.Screen name="QR_Scanner" component={ScannerScreen} />
@@ -169,6 +171,14 @@ function App() {
           options={{
             headerShown: true,
             title: 'Cipta Kod QR Surau',
+          }}
+        />
+        <Stack.Screen
+          name="EditReport"
+          component={EditReportScreen}
+          options={{
+            headerShown: true,
+            title: 'Kemaskini Log Masuk/Keluar',
           }}
         />
       </Stack.Navigator>

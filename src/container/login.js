@@ -26,7 +26,7 @@ export default function LoginScreen({ onClose, navigation, route }) {
     const { data: dataFetch } = await Supabase.from('password')
       .select('pass')
       .eq('pass', pass.toString());
-    if (dataFetch.length === 1) {
+    if (dataFetch?.length === 1) {
       try {
         await AsyncStorage.setItem('@MySuperPass', pass);
       } catch (error) {

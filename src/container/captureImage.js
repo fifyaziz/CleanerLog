@@ -7,7 +7,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { captureRef } from 'react-native-view-shot';
@@ -41,7 +41,7 @@ export default function CaptureImageScreen({ route }) {
         alert('Saved!');
       }
     } catch (e) {
-      console.log(e);
+      console.error(e);
     }
   };
 
@@ -58,19 +58,6 @@ export default function CaptureImageScreen({ route }) {
       setCountMasa(0);
     }
   }, [countMasa]);
-
-  console.log({
-    name: routeData.name,
-    floor: routeData.floor,
-    building: routeData.building,
-    gender: routeData.gender,
-    first_in: routeData.first_in,
-    first_out: routeData.first_out,
-    second_in: routeData.second_in,
-    second_out: routeData.second_out,
-    third_in: routeData.third_in,
-    third_out: routeData.third_out,
-  });
 
   return (
     <ScrollView>

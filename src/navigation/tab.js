@@ -65,7 +65,7 @@ function DrawerScreen({ navigation }) {
           headerRight: () =>
             isLogin ? (
               <TouchableOpacity style={{ paddingHorizontal: 20 }} onPress={handleClearData}>
-                <Entypo name="log-out" size={24} color="black" />
+                <Entypo name="log-out" size={24} color="red" />
               </TouchableOpacity>
             ) : (
               <TouchableOpacity

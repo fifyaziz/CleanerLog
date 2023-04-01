@@ -1,4 +1,4 @@
-import { Entypo, FontAwesome } from '@expo/vector-icons';
+import { Entypo, FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Picker } from '@react-native-picker/picker';
 import * as FileSystem from 'expo-file-system';
@@ -8,13 +8,14 @@ import { useEffect, useState } from 'react';
 import {
   Dimensions,
   Image,
+  Modal,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
-import { Snackbar } from 'react-native-paper';
+import { dateTimeAPIFormat } from '../config';
 import Supabase from '../config/initSupabase';
 
 const windowHeight = Dimensions.get('window').height;
@@ -35,60 +36,61 @@ export default function NameScreen({ route = {}, navigation }) {
   const [pickerStaff, setPickerStaff] = useState('');
   const [listPickerStaff, setListPickerStaff] = useState([]);
 
-  const [vis, setVis] = useState(true);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const handleNext = async () => {
-    const getName = await AsyncStorage.getItem('@storage_checkin');
-    const getId = await AsyncStorage.getItem('@storage_checkin_id');
-    const getDate = await AsyncStorage.getItem('@storage_checkin_date');
-    const getPhoto = await AsyncStorage.getItem('@storage_checkin_photo');
-    const payload = {
-      name: getName,
-      floor: routeData?.floor,
-      building: routeData?.building,
-      gender: routeData?.gender,
-      check_in: parseInt(getDate),
-      photo_in: getPhoto,
-      check_out: new Date().getTime(),
-      photo_out: imageBase64,
-      toilet_name: routeData?.name,
-      id_staff: getId,
-      is_surau: routeData.is_surau,
-    };
-    console.log('payload', payload);
-    navigation.navigate('ReportStaff', payload);
+    // const getName = await AsyncStorage.getItem('@storage_checkin');
+    // const getId = await AsyncStorage.getItem('@storage_checkin_id');
+    // const getDate = await AsyncStorage.getItem('@storage_checkin_date');
+    // const getPhoto = await AsyncStorage.getItem('@storage_checkin_photo');
+    // const payload = {
+    //   name: getName,
+    //   floor: routeData?.floor,
+    //   building: routeData?.building,
+    //   gender: routeData?.gender,
+    //   check_in: getDate,
+    //   photo_in: getPhoto,
+    //   check_out: dateTimeAPIFormat(new Date()),
+    //   photo_out: imageBase64,
+    //   toilet_name: routeData?.name,
+    //   id_staff: getId,
+    //   is_surau: routeData.is_surau,
+    // };
+    // console.log('getDate : ', getDate);
+    // console.log('datetime : ', dateTimeAPIFormat(new Date()));
+    // navigation.navigate('ReportStaff', payload);
 
-    // try {
-    //   const getName = await AsyncStorage.getItem('@storage_checkin');
-    //   const getId = await AsyncStorage.getItem('@storage_checkin_id');
-    //   const getDate = await AsyncStorage.getItem('@storage_checkin_date');
-    //   const getPhoto = await AsyncStorage.getItem('@storage_checkin_photo');
-    //   if (inputName) {
-    //     const payload = {
-    //       name: getName,
-    //       floor: routeData?.floor,
-    //       building: routeData?.building,
-    //       gender: routeData?.gender,
-    //       check_in: getDate,
-    //       photo_in: getPhoto,
-    //       check_out: new Date().toISOString(),
-    //       photo_out: imageBase64,
-    //       toilet_name: routeData?.name,
-    //       id_staff: getId,
-    //       is_surau: routeData.is_surau,
-    //     };
-    //     const { status, error } = await Supabase.from('check_in_out').insert(payload);
-    //     if (status === 201) {
-    //       ToastAndroid.show('Maklumat log masuk berjaya disimpan.!', ToastAndroid.BOTTOM);
-    //       navigation.pop();
-    //       navigation.navigate('ReportStaff', payload);
-    //     }
-    //   } else {
-    //     ToastAndroid.show('Sila masukkan nama', ToastAndroid.TOP);
-    //   }
-    // } catch (e) {
-    //   console.error('ehn', e);
-    // }
+    try {
+      const getName = await AsyncStorage.getItem('@storage_checkin');
+      const getId = await AsyncStorage.getItem('@storage_checkin_id');
+      const getDate = await AsyncStorage.getItem('@storage_checkin_date');
+      const getPhoto = await AsyncStorage.getItem('@storage_checkin_photo');
+      if (inputName) {
+        const payload = {
+          name: getName,
+          floor: routeData?.floor,
+          building: routeData?.building,
+          gender: routeData?.gender,
+          check_in: getDate,
+          photo_in: getPhoto,
+          check_out: dateTimeAPIFormat(new Date()),
+          photo_out: imageBase64,
+          toilet_name: routeData?.name,
+          id_staff: getId,
+          is_surau: routeData.is_surau,
+        };
+        const { status, error } = await Supabase.from('check_in_out').insert(payload);
+        console.error('errors', error);
+
+        if (status === 201) {
+          // ToastAndroid.show('Maklumat log masuk berjaya disimpan.!', ToastAndroid.BOTTOM);
+          navigation.pop();
+          navigation.navigate('ReportStaff', payload);
+        }
+      }
+    } catch (e) {
+      console.error('ehn', e);
+    }
   };
 
   const handleCheckIn = async () => {
@@ -96,20 +98,15 @@ export default function NameScreen({ route = {}, navigation }) {
       try {
         await AsyncStorage.setItem('@storage_checkin', inputName);
         await AsyncStorage.setItem('@storage_checkin_id', inputId);
-        await AsyncStorage.setItem('@storage_checkin_date', new Date().getTime().toString());
+        await AsyncStorage.setItem('@storage_checkin_date', dateTimeAPIFormat(new Date()));
         await AsyncStorage.setItem('@storage_data', JSON.stringify(routeData));
         await AsyncStorage.setItem('@storage_checkin_photo', imageBase64);
-        console.log('getDate', new Date().getTime().toString());
-
-        // ToastAndroid.show('Log Masuk Telah Berjaya', ToastAndroid.LONG);
 
         navigation.pop();
         navigation.navigate('Cleaning');
       } catch (e) {
         console.error('ehci', e);
       }
-    } else {
-      // ToastAndroid.show('Sila masukkan nama', ToastAndroid.TOP);
     }
   };
 
@@ -161,6 +158,28 @@ export default function NameScreen({ route = {}, navigation }) {
         setNameStored(Boolean(getName));
         setInputName(getName);
         setInputID(getId);
+
+        navigation.setOptions({
+          title: Boolean(getName) ? 'Log Keluar' : 'Log Masuk',
+          headerRight: () =>
+            Boolean(getName) ? (
+              <TouchableOpacity
+                style={{
+                  paddingHorizontal: 5,
+                  borderWidth: 1,
+                  borderColor: 'red',
+                  borderRadius: 10,
+                }}
+                onPress={async () => {
+                  // await AsyncStorage.clear();
+                  // navigation?.navigate('Scanner');
+                  setModalVisible(!modalVisible);
+                }}
+              >
+                <MaterialCommunityIcons name="delete-forever-outline" size={30} color="red" />
+              </TouchableOpacity>
+            ) : null,
+        });
       } catch (e) {
         console.error('euengd', e);
       }
@@ -383,27 +402,53 @@ export default function NameScreen({ route = {}, navigation }) {
           </View>
         </View>
 
-        <Snackbar
-          visible={vis}
-          onDismiss={() => setVis(false)}
-          duration={1000}
-          style={{ backgroundColor: '#00000000', opacity: 0.6 }}
+        <Modal
+          animationType="slide"
+          //animationInTiming = {13900}
+          transparent={false}
+          visible={modalVisible}
+          // animationOut = "slide"
+          swipeDirection="down"
+          style={{ opacity: 0.5 }}
+          onRequestClose={() => {
+            Alert.alert('Modal has been closed.');
+          }}
         >
-          <View
-            style={{ flexDirection: 'row', justifyContent: 'center', backgroundColor: '#00000000' }}
-          >
-            <View
-              style={{
-                borderRadius: 50,
-                backgroundColor: 'palegreen',
-                paddingVertical: 10,
-                paddingHorizontal: 30,
-              }}
-            >
-              <Text>Hey there! I'm a Snackbar.</Text>
+          <View style={styles.centeredView}>
+            <View style={styles.modalView}>
+              <Text style={styles.modalText}>
+                Anda pasti ingin <Text style={{ fontWeight: 'bold' }}>Log Masuk</Text> semula?
+              </Text>
+
+              <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+                <TouchableOpacity
+                  style={{
+                    ...styles.openButton,
+                    borderWidth: 1,
+                    borderColor: '#2196F3',
+                    backgroundColor: 'white',
+                    marginHorizontal: 10,
+                  }}
+                  onPress={() => {
+                    setModalVisible(!modalVisible);
+                  }}
+                >
+                  <Text style={[styles.textStyle, { color: '#2196F3' }]}>Kembali</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={{ ...styles.openButton, backgroundColor: '#2196F3' }}
+                  onPress={async () => {
+                    setModalVisible(!modalVisible);
+                    await AsyncStorage.clear();
+                    navigation?.navigate('Scanner');
+                  }}
+                >
+                  <Text style={styles.textStyle}>Teruskan</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </Snackbar>
+        </Modal>
       </View>
     </ScrollView>
   );
@@ -459,5 +504,41 @@ const styles = StyleSheet.create({
   camera: {
     flex: 1,
     width: windowWidth,
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 22,
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  openButton: {
+    backgroundColor: '#F194FF',
+    borderRadius: 10,
+    padding: 10,
+    elevation: 2,
+  },
+  textStyle: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: 'center',
   },
 });

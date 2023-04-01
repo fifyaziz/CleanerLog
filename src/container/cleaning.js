@@ -5,13 +5,17 @@ import {
   MaterialCommunityIcons,
   MaterialIcons,
 } from '@expo/vector-icons';
+import { useState } from 'react';
 import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Snackbar } from 'react-native-paper';
 
 const windowWidth = Dimensions.get('window').width;
 const iconSize = parseInt((windowWidth * 10) / 100);
 const color = 'grey';
 
 export default function CleaningScreen({ navigation }) {
+  const [snackbarMessage, setSnackbarMessage] = useState(true);
+
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Selamat Mencuci</Text>
@@ -37,6 +41,28 @@ export default function CleaningScreen({ navigation }) {
           Kembali ke Imbas Kamera
         </Text>
       </TouchableOpacity>
+
+      <Snackbar
+        visible={snackbarMessage}
+        onDismiss={() => setSnackbarMessage(false)}
+        duration={1000}
+        style={{ backgroundColor: '#00000000', opacity: 0.6 }}
+      >
+        <View
+          style={{ flexDirection: 'row', justifyContent: 'center', backgroundColor: '#00000000' }}
+        >
+          <View
+            style={{
+              borderRadius: 50,
+              backgroundColor: 'palegreen',
+              paddingVertical: 10,
+              paddingHorizontal: 30,
+            }}
+          >
+            <Text>Log Masuk Telah Berjaya.</Text>
+          </View>
+        </View>
+      </Snackbar>
     </View>
   );
 }
