@@ -5,11 +5,13 @@ import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { useCallback, useEffect, useState } from 'react';
 import {
-  ActivityIndicator, SafeAreaView,
+  ActivityIndicator,
+  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity, View
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { dateAPIFormat, dateSlashFormat, dateTimeFormat, timeFormat } from '../config';
@@ -199,10 +201,10 @@ export default function ReportWeeklyScreen({ navigation }) {
             paddingVertical: 20,
             flexDirection: 'row',
             justifyContent: 'space-between',
-            backgroundColor:'aliceblue'
+            backgroundColor: 'aliceblue',
           }}
         >
-          <Text style={{ textTransform: 'capitalize', fontWeight:'bold' }}>
+          <Text style={{ textTransform: 'capitalize', fontWeight: 'bold' }}>
             {pickerBuilding}, {dateSlashFormat(lastFriday)} - {dateSlashFormat(nextThursday)}
           </Text>
           <TouchableOpacity onPress={() => setIsVisibleFilter(false)}>
@@ -210,9 +212,16 @@ export default function ReportWeeklyScreen({ navigation }) {
           </TouchableOpacity>
         </View>
       ) : (
-        <View style={[{ paddingTop: 20, width:'100%',paddingHorizontal:'10%',
-          backgroundColor:'aliceblue'
-        }]}>
+        <View
+          style={[
+            {
+              paddingTop: 20,
+              width: '100%',
+              paddingHorizontal: '10%',
+              backgroundColor: 'aliceblue',
+            },
+          ]}
+        >
           <Text>Bangunan</Text>
           <View style={{ borderWidth: 1, borderRadius: 10, marginTop: 5, marginBottom: 20 }}>
             <Picker
@@ -228,7 +237,7 @@ export default function ReportWeeklyScreen({ navigation }) {
               <Picker.Item label="Tower 3" value="t3" />
             </Picker>
           </View>
-          <View style={{ flexDirection: 'row', justifyContent:'center', alignItems:'center', }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
             <View
               style={{
                 marginHorizontal: 5,
@@ -264,7 +273,14 @@ export default function ReportWeeklyScreen({ navigation }) {
             pickerStyleIOS={{ backgroundColor: 'grey' }}
           />
 
-          <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 30, marginBottom:listTop3?.length > 0?10:30 }}>
+          <View
+            style={{
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginTop: 30,
+              marginBottom: listTop3?.length > 0 ? 10 : 30,
+            }}
+          >
             <TouchableOpacity style={styles.button} onPress={() => fetchData()}>
               <Text style={{ color: 'white', fontWeight: '600' }}>Jana Laporan</Text>
             </TouchableOpacity>

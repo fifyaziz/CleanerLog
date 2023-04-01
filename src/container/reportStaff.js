@@ -7,7 +7,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
 import { Snackbar } from 'react-native-paper';
 import { dateTimeFormat } from '../config';

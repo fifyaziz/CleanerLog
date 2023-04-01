@@ -10,7 +10,7 @@ import {
   Text,
   TextInput,
   ToastAndroid,
-  View
+  View,
 } from 'react-native';
 import { dateTimeFormat } from '../config';
 import Supabase from '../config/initSupabase';

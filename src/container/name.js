@@ -13,7 +13,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
 import { dateTimeAPIFormat } from '../config';
 import Supabase from '../config/initSupabase';

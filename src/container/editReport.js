@@ -79,9 +79,7 @@ export default function EditReportScreen({ route = {}, navigation }) {
         const { data: dataFetch, error: errorFetch } = await Supabase.from('staff').select();
         if (dataFetch?.length > 0) {
           setListPickerStaff(dataFetch);
-          dataFetch.map(
-            (a) => a.staff_name === routeData.name && setInputID(a.staff_id)
-          );
+          dataFetch.map((a) => a.staff_name === routeData.name && setInputID(a.staff_id));
         }
       })();
     } catch (e) {
@@ -130,7 +128,7 @@ export default function EditReportScreen({ route = {}, navigation }) {
                   {listPickerStaff?.map((a, i) => (
                     <Picker.Item
                       key={i}
-                      label={a.staff_id+ ' - ' + a.staff_name}
+                      label={a.staff_id + ' - ' + a.staff_name}
                       value={a.staff_name}
                     />
                   ))}
