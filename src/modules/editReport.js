@@ -94,9 +94,9 @@ export default function EditReportScreen({ route = {}, navigation }) {
           {routeData && (
             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
               <Text style={{ fontSize: 20, fontWeight: '600' }}>
-                {`${routeData.is_surau ? 'Surau' : 'Tandas'} ${routeData?.name}${
-                  routeData?.gender == 1 ? ' (L)' : ' (P)'
-                }`}
+                {`${routeData.is_office ? 'Pejabat' : routeData.is_surau ? 'Surau' : 'Tandas'} ${
+                  routeData?.toilet_name
+                }${routeData?.gender == 0 ? '' : routeData?.gender == 1 ? ' (L)' : ' (P)'}`}
               </Text>
               <Text style={{ fontSize: 20, fontWeight: '600' }}>
                 <Text style={{ textTransform: 'capitalize' }}>{routeData?.building}</Text> Tingkat{' '}

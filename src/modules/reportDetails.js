@@ -15,6 +15,7 @@ import {
 import { dateTimeFormat } from '../config';
 import Supabase from '../config/initSupabase';
 
+const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
 const headerSize = parseInt((windowWidth * 6) / 100);
 const titleSize = parseInt((windowWidth * 5) / 100);
@@ -65,8 +66,8 @@ export default function ReportDetailScreen({ route, navigation }) {
     <ScrollView>
       <View style={styles.container}>
         <Text style={styles.header}>
-          Maklumat {routeData.is_surau ? 'Surau' : 'Tandas'}
-          {routeData?.gender === '1' ? ' (L)' : ' (P)'}
+          Maklumat {routeData.is_surau ? 'Surau' : routeData.is_office ? 'Pejabat' : 'Tandas'}
+          {routeData?.gender == '1' ? ' (L)' : routeData?.gender == '0' ? '' : ' (P)'}
         </Text>
         <Text style={styles.header}>
           {routeData?.toilet_name} {routeData?.building}
@@ -228,6 +229,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 20,
     paddingBottom: 40,
+    minHeight: windowHeight,
   },
   header: {
     fontSize: headerSize,

@@ -28,6 +28,9 @@ export default function NameScreen({ route = {}, navigation }) {
   const routeData =
     route && typeof route?.params === 'string' ? JSON.parse(route?.params) : route?.params;
 
+  const [prevName, setPrevName] = useState();
+  const [prevId, setPrevId] = useState();
+
   const [inputName, setInputName] = useState();
   const [inputId, setInputID] = useState();
   const [nameStored, setNameStored] = useState(false);
@@ -78,6 +81,7 @@ export default function NameScreen({ route = {}, navigation }) {
           toilet_name: routeData?.name,
           id_staff: getId,
           is_surau: routeData.is_surau,
+          is_office: routeData.is_office,
         };
         const { status, error } = await Supabase.from('check_in_out').insert(payload);
         console.error('errors', error);
@@ -159,6 +163,12 @@ export default function NameScreen({ route = {}, navigation }) {
         setInputName(getName);
         setInputID(getId);
 
+        const prevName = await AsyncStorage.getItem('@storage_username');
+        const prevId = await AsyncStorage.getItem('@storage_user_id');
+        setPickerStaff(prevName);
+        setInputName(prevName);
+        setInputID(prevId);
+
         navigation.setOptions({
           title: Boolean(getName) ? 'Log Keluar' : 'Log Masuk',
           headerRight: () =>
@@ -213,13 +223,13 @@ export default function NameScreen({ route = {}, navigation }) {
           {routeData && (
             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
               <Text style={{ fontSize: 20, fontWeight: '600' }}>
-                {`${routeData.is_surau ? 'Surau' : 'Tandas'} ${routeData?.name}${
-                  routeData?.gender == 1 ? ' (L)' : ' (P)'
-                }`}
+                {`${routeData.is_surau ? 'Surau' : routeData.is_office ? 'Pejabat' : 'Tandas'} ${
+                  routeData?.name
+                }${routeData?.gender == 1 ? ' (L)' : routeData?.gender == 0 ? '' : ' (P)'}`}
               </Text>
               <Text style={{ fontSize: 20, fontWeight: '600' }}>
-                <Text style={{ textTransform: 'capitalize' }}>{routeData?.building}</Text> Tingkat{' '}
-                {routeData?.floor}
+                <Text style={{ textTransform: 'capitalize' }}>{routeData?.building}</Text>
+                {routeData?.floor && ` Tingkat ${routeData?.floor}`}
               </Text>
               <View style={{ width: 50, height: 10, borderBottomWidth: 1 }}></View>
             </View>
@@ -295,7 +305,7 @@ export default function NameScreen({ route = {}, navigation }) {
               <TouchableOpacity
                 style={{
                   borderWidth: 1,
-                  borderColor: 'deepskyblue',
+                  borderColor: '#2a908f',
                   borderRadius: 10,
                   paddingVertical: 10,
                   paddingHorizontal: 20,
@@ -306,10 +316,10 @@ export default function NameScreen({ route = {}, navigation }) {
                 <View
                   style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}
                 >
-                  <Entypo name="camera" size={24} color="deepskyblue" />
+                  <Entypo name="camera" size={24} color="#2a908f" />
                   <Text
                     style={{
-                      color: 'deepskyblue',
+                      color: '#2a908f',
                       textAlign: 'center',
                       fontWeight: '500',
                       paddingHorizontal: 10,
@@ -322,7 +332,7 @@ export default function NameScreen({ route = {}, navigation }) {
               <TouchableOpacity
                 style={{
                   borderWidth: 1,
-                  borderColor: 'deepskyblue',
+                  borderColor: '#2a908f',
                   borderRadius: 10,
                   paddingVertical: 10,
                   paddingHorizontal: 20,
@@ -333,10 +343,10 @@ export default function NameScreen({ route = {}, navigation }) {
                 <View
                   style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}
                 >
-                  <FontAwesome name="file-picture-o" size={24} color="deepskyblue" />
+                  <FontAwesome name="file-picture-o" size={24} color="#2a908f" />
                   <Text
                     style={{
-                      color: 'deepskyblue',
+                      color: '#2a908f',
                       textAlign: 'center',
                       fontWeight: '500',
                       paddingHorizontal: 10,
@@ -360,7 +370,7 @@ export default function NameScreen({ route = {}, navigation }) {
             {nameStored ? (
               <TouchableOpacity
                 style={{
-                  backgroundColor: !inputName ? 'lightgrey' : 'deepskyblue',
+                  backgroundColor: !inputName ? 'lightgrey' : '#2a908f',
                   borderRadius: 10,
                   paddingVertical: 15,
                   marginVertical: 20,
@@ -381,7 +391,7 @@ export default function NameScreen({ route = {}, navigation }) {
               <TouchableOpacity
                 disabled={!inputName}
                 style={{
-                  backgroundColor: !inputName ? 'lightgrey' : 'deepskyblue',
+                  backgroundColor: !inputName ? 'lightgrey' : '#2a908f',
                   borderRadius: 10,
                   paddingVertical: 15,
                   marginVertical: 20,
@@ -440,7 +450,7 @@ export default function NameScreen({ route = {}, navigation }) {
                   onPress={async () => {
                     setModalVisible(!modalVisible);
                     await AsyncStorage.clear();
-                    navigation?.navigate('Scanner');
+                    navigation?.navigate('QR_Scanner');
                   }}
                 >
                   <Text style={styles.textStyle}>Teruskan</Text>
@@ -484,7 +494,7 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 10,
-    backgroundColor: 'deepskyblue',
+    backgroundColor: '#2a908f',
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 10,
@@ -496,7 +506,7 @@ const styles = StyleSheet.create({
   },
   newButton: {
     marginTop: 25,
-    backgroundColor: 'deepskyblue',
+    backgroundColor: '#2a908f',
     paddingVertical: 10,
     paddingHorizontal: '12%',
     borderRadius: 20,

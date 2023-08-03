@@ -6,7 +6,7 @@ export const dateTimeFormat = (datetime) => {
 
     var date = new Date(b[0], b[1], b[2], c[0], c[1]);
     const day = date.getDate();
-    const month = date.getMonth() + 1;
+    const month = date.getMonth();
     const year = date.getFullYear();
     var hours = date.getHours();
     var ampm = hours >= 12 ? 'pm' : 'am';
@@ -71,6 +71,18 @@ export const timeFormat = (date) => {
     var strTime = hours + ':' + minutes + ' ' + ampm;
     return strTime;
   }
+};
+
+export const pickerTimeFormat = (date) => {
+  var tempDate = new Date(date) || new Date();
+  var hours = tempDate.getHours();
+  var minutes = tempDate.getMinutes();
+  var ampm = hours >= 12 ? 'pm' : 'am';
+  hours = hours % 12;
+  hours = hours ? hours : 12; // the hour '0' should be '12'
+  minutes = minutes < 10 ? '0' + minutes : minutes;
+  var strTime = hours + ':' + minutes + ' ' + ampm;
+  return strTime;
 };
 
 export const dateTimeAPIFormat = (datetime) => {

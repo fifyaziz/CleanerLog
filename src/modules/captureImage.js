@@ -106,7 +106,7 @@ export default function CaptureImageScreen({ route }) {
                 <Text style={{ fontSize: 28 }} />
                 <Text style={{ fontSize: 60, fontWeight: '600' }}>
                   {routeData.is_surau ? 'Surau' : 'Tandas'} {routeData.name}{' '}
-                  {routeData.gender === 1 ? '(L)' : '(P)'}
+                  {routeData.gender === 1 ? '(L)' : routeData.gender === 0 ? '' : '(P)'}
                 </Text>
                 <Text style={{ fontSize: 28, fontWeight: '400' }}>(Cleaner)</Text>
                 <Text style={{ fontSize: 28 }} />
@@ -154,7 +154,7 @@ export default function CaptureImageScreen({ route }) {
                     <View></View>
                     <Text style={{ fontSize: 20, paddingTop: 5, fontWeight: '500' }}>
                       {routeData.is_surau ? 'Surau' : 'Tandas'} {routeData.name}{' '}
-                      {routeData.gender === 1 ? '(L)' : '(P)'}
+                      {routeData.gender === 1 ? '(L)' : routeData.gender === 0 ? '' : '(P)'}
                     </Text>
                     <Text style={{ fontSize: 18, fontWeight: '500' }}>
                       <Text style={{ textTransform: 'capitalize' }}>{routeData.building}</Text>{' '}

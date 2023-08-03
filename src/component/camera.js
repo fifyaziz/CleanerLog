@@ -13,7 +13,7 @@ export default function CameraScreen({ navigation, route }) {
   const [type, setType] = useState(CameraType.back);
 
   const onPictureSaved = async (photo) => {
-    navigation.navigate('Name', { ...routeData, ...photo });
+    navigation.navigate('CheckInOut', { ...routeData, ...photo });
   };
 
   const takePicture = () => {
@@ -54,23 +54,23 @@ export default function CameraScreen({ navigation, route }) {
               padding: 10,
               borderRadius: 50,
               borderWidth: 1,
-              borderColor: 'deepskyblue',
+              borderColor: '#2a908f',
             }}
             onPress={toggleCameraType}
           >
-            <MaterialCommunityIcons name="camera-flip-outline" size={30} color="deepskyblue" />
+            <MaterialCommunityIcons name="camera-flip-outline" size={30} color="#2a908f" />
           </TouchableOpacity>
           <TouchableOpacity
             style={{
               backgroundColor: 'white',
               padding: 20,
-              borderRadius: 50,
-              borderWidth: 1,
-              borderColor: 'deepskyblue',
+              borderRadius: 100,
+              borderWidth: 2,
+              borderColor: '#2a908f',
             }}
             onPress={takePicture}
           >
-            <FontAwesome name="dot-circle-o" size={40} color="deepskyblue" />
+            <FontAwesome name="dot-circle-o" size={45} color="#2a908f" />
           </TouchableOpacity>
         </View>
       </View>

@@ -1,4 +1,3 @@
-import { Entypo } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
@@ -19,28 +18,27 @@ import {
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import QRCode from 'react-native-qrcode-svg';
 import RadioButton from '../component/radioButton';
-import { timeFormat } from '../config';
+import { pickerTimeFormat, timeFormat } from '../config';
 import Supabase from '../config/initSupabase';
 
 const windowWidth = Dimensions.get('screen').width;
 
-export default function EditQRScreen({ route, navigation }) {
+export default function CreateQROfficeScreen({ navigation }) {
   const refQR = useRef();
-  const routeData = route?.params?.data;
 
-  const [inputNama, setInputNama] = useState(routeData.name);
-  const [inputTingkat, setInputTingkat] = useState(routeData.floor);
-  const [pickerMenara, setPickerMenara] = useState(routeData.building);
-  const [radioJantina, setRadioJantina] = useState(routeData.gender); // 1 - lelaki, 2 - perempuan
+  const [inputNama, setInputNama] = useState();
+  const [inputTingkat, setInputTingkat] = useState(null);
+  const [pickerMenara, setPickerMenara] = useState('');
+  const [radioJantina, setRadioJantina] = useState(0); // 1 - lelaki, 2 - perempuan
 
-  const [masaMasukPertama, setMasaMasukPertama] = useState(routeData.first_in);
-  const [masaKeluarPertama, setMasaKeluarPertama] = useState(routeData.first_out);
-  const [masaMasukKedua, setMasaMasukKedua] = useState(routeData.second_in);
-  const [masaKeluarKedua, setMasaKeluarKedua] = useState(routeData.second_out);
-  const [masaMasukKetiga, setMasaMasukKetiga] = useState(routeData.third_in);
-  const [masaKeluarKetiga, setMasaKeluarKetiga] = useState(routeData.third_out);
-  const [masaMasukKeempat, setMasaMasukKeempat] = useState(routeData.fourth_in);
-  const [masaKeluarKeempat, setMasaKeluarKeempat] = useState(routeData.fourth_out);
+  const [masaMasukPertama, setMasaMasukPertama] = useState();
+  const [masaKeluarPertama, setMasaKeluarPertama] = useState();
+  const [masaMasukKedua, setMasaMasukKedua] = useState();
+  const [masaKeluarKedua, setMasaKeluarKedua] = useState();
+  const [masaMasukKetiga, setMasaMasukKetiga] = useState();
+  const [masaKeluarKetiga, setMasaKeluarKetiga] = useState();
+  const [masaMasukKeempat, setMasaMasukKeempat] = useState();
+  const [masaKeluarKeempat, setMasaKeluarKeempat] = useState();
 
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [datePickerType, setDatePickerType] = useState();
@@ -56,22 +54,6 @@ export default function EditQRScreen({ route, navigation }) {
     setDatePickerVisibility(false);
     setDatePickerType();
     setDatePickerNum();
-  };
-
-  const handleClearTime = (val) => {
-    if (val === 1) {
-      setMasaMasukPertama();
-      setMasaKeluarPertama();
-    } else if (val === 2) {
-      setMasaMasukKedua();
-      setMasaKeluarKedua();
-    } else if (val === 3) {
-      setMasaMasukKetiga();
-      setMasaKeluarKetiga();
-    } else if (val === 4) {
-      setMasaMasukKeempat();
-      setMasaKeluarKeempat();
-    }
   };
 
   const handleConfirmDatePicker = useCallback(
@@ -99,9 +81,20 @@ export default function EditQRScreen({ route, navigation }) {
     [datePickerType, datePickerNum]
   );
 
-  const handleUpdate = useCallback(async () => {
-    const { status, error } = await Supabase.from('service_area')
-      .update({
+  const handleSimpan = useCallback(async () => {
+    const { data: dataFetch, error: errorFetch } = await Supabase.from('service_area')
+      .select('name, floor, building, gender')
+      .eq('name', inputNama)
+      .eq('floor', inputTingkat)
+      .eq('building', pickerMenara)
+      .eq('gender', radioJantina)
+      .eq('is_surau', false)
+      .eq('is_office', true);
+
+    if (dataFetch?.length > 0) {
+      ToastAndroid.show('Maklumat pejabat ini telah wujud.!', ToastAndroid.TOP);
+    } else if (dataFetch?.length === 0) {
+      const { status, error } = await Supabase.from('service_area').insert({
         name: inputNama,
         floor: inputTingkat,
         building: pickerMenara,
@@ -114,19 +107,22 @@ export default function EditQRScreen({ route, navigation }) {
         third_out: masaKeluarKetiga,
         fourth_in: masaMasukKeempat,
         fourth_out: masaKeluarKeempat,
-      })
-      .eq('id', routeData.id);
-    if (status === 204) {
-      ToastAndroid.show(
-        `Maklumat ${routeData.is_surau ? 'surau' : 'tandas'} berjaya dikemaskini.!`,
-        ToastAndroid.BOTTOM
-      );
+        is_surau: false,
+        is_office: true,
+      });
+      if (status === 201) {
+        navigation.pop();
+        ToastAndroid.show('Maklumat pejabat berjaya disimpan.!', ToastAndroid.BOTTOM);
+      }
+      if (error) {
+        console.error('error', error);
+      }
     }
-    if (error) {
-      console.error('error', error);
+
+    if (errorFetch) {
+      console.error('errorFetch', errorFetch);
     }
   }, [
-    inputNama,
     inputTingkat,
     radioJantina,
     pickerMenara,
@@ -162,8 +158,8 @@ export default function EditQRScreen({ route, navigation }) {
             </style>
             <body style="text-align: center;">
               <h1 style="font-size: 50px; font-family: Helvetica Neue; font-weight: normal; text-transform: capitalize">
-              ${routeData.is_surau ? 'surau' : 'tandas'} ${inputNama || ''} ${
-          radioJantina === 1 ? '(L)' : radioJantina === 2 ? '(P)' : ''
+                Office ${inputNama || ''} ${
+          radioJantina === 1 ? 'Lelaki' : radioJantina === 2 ? 'Perempuan' : ''
         }
               </h1>
               <h2 style="font-size: 50px; font-family: Helvetica Neue; font-weight: normal; text-transform: capitalize">
@@ -237,8 +233,8 @@ export default function EditQRScreen({ route, navigation }) {
     });
   }, [
     inputTingkat,
-    pickerMenara,
     radioJantina,
+    pickerMenara,
     masaMasukPertama,
     masaKeluarPertama,
     masaMasukKedua,
@@ -261,11 +257,11 @@ export default function EditQRScreen({ route, navigation }) {
     <ScrollView>
       <View style={styles.container}>
         <Text style={{ fontSize: 15, fontWeight: '600', paddingTop: 30, paddingHorizontal: 10 }}>
-          Maklumat {routeData.is_surau ? 'Surau' : 'Tandas'}
+          Maklumat Pejabat
         </Text>
         <View style={{ flexDirection: 'row', paddingTop: 10 }}>
           <TextInput
-            placeholder={`Nama ${routeData.is_surau ? 'Surau' : 'Tandas'}`}
+            placeholder="Nama Pejabat"
             style={[styles.textInput, { width: '55%', marginLeft: 10, marginRight: 5 }]}
             autoCapitalize="none"
             value={inputNama}
@@ -310,11 +306,15 @@ export default function EditQRScreen({ route, navigation }) {
             style={[{ width: '35%', marginRight: 10, marginLeft: 5, alignItems: 'flex-start' }]}
           >
             <View style={{ paddingBottom: 5 }}>
-              <TouchableOpacity onPress={() => setRadioJantina(1)}>
-                <RadioButton selected={radioJantina === 1} label="Lelaki" />
+              <TouchableOpacity onPress={() => setRadioJantina(2)}>
+                <RadioButton selected={radioJantina === 0} label="Tiada" />
               </TouchableOpacity>
             </View>
-
+            <View style={{ paddingBottom: 5, paddingTop: 5 }}>
+              <TouchableOpacity onPress={() => setRadioJantina(1)}>
+                <RadioButton checked={radioJantina === 1} label="Lelaki" />
+              </TouchableOpacity>
+            </View>
             <View style={{ paddingTop: 5 }}>
               <TouchableOpacity onPress={() => setRadioJantina(2)}>
                 <RadioButton selected={radioJantina === 2} label="Perempuan" />
@@ -351,7 +351,7 @@ export default function EditQRScreen({ route, navigation }) {
                   { borderRadius: 10, overflow: 'hidden', padding: 10, minWidth: 75 },
                 ]}
               >
-                {masaMasukPertama ? timeFormat(masaMasukPertama) : ''}
+                {masaMasukPertama ? pickerTimeFormat(masaMasukPertama) : ''}
               </Text>
             </TouchableOpacity>
           </View>
@@ -363,13 +363,10 @@ export default function EditQRScreen({ route, navigation }) {
                   { borderRadius: 10, overflow: 'hidden', padding: 10, minWidth: 75 },
                 ]}
               >
-                {masaKeluarPertama ? timeFormat(masaKeluarPertama) : ''}
+                {masaKeluarPertama ? pickerTimeFormat(masaKeluarPertama) : ''}
               </Text>
             </TouchableOpacity>
           </View>
-          <TouchableOpacity onPress={() => handleClearTime(1)}>
-            <Entypo name="eraser" size={24} color="black" />
-          </TouchableOpacity>
         </View>
 
         <View
@@ -389,7 +386,7 @@ export default function EditQRScreen({ route, navigation }) {
                   { borderRadius: 10, overflow: 'hidden', padding: 10, minWidth: 75 },
                 ]}
               >
-                {masaMasukKedua ? timeFormat(masaMasukKedua) : ''}
+                {masaMasukKedua ? pickerTimeFormat(masaMasukKedua) : ''}
               </Text>
             </TouchableOpacity>
           </View>
@@ -401,13 +398,10 @@ export default function EditQRScreen({ route, navigation }) {
                   { borderRadius: 10, overflow: 'hidden', padding: 10, minWidth: 75 },
                 ]}
               >
-                {masaKeluarKedua ? timeFormat(masaKeluarKedua) : ''}
+                {masaKeluarKedua ? pickerTimeFormat(masaKeluarKedua) : ''}
               </Text>
             </TouchableOpacity>
           </View>
-          <TouchableOpacity onPress={() => handleClearTime(2)}>
-            <Entypo name="eraser" size={24} color="black" />
-          </TouchableOpacity>
         </View>
 
         <View
@@ -427,7 +421,7 @@ export default function EditQRScreen({ route, navigation }) {
                   { borderRadius: 10, overflow: 'hidden', padding: 10, minWidth: 75 },
                 ]}
               >
-                {masaMasukKetiga ? timeFormat(masaMasukKetiga) : ''}
+                {masaMasukKetiga ? pickerTimeFormat(masaMasukKetiga) : ''}
               </Text>
             </TouchableOpacity>
           </View>
@@ -439,13 +433,10 @@ export default function EditQRScreen({ route, navigation }) {
                   { borderRadius: 10, overflow: 'hidden', padding: 10, minWidth: 75 },
                 ]}
               >
-                {masaKeluarKetiga ? timeFormat(masaKeluarKetiga) : ''}
+                {masaKeluarKetiga ? pickerTimeFormat(masaKeluarKetiga) : ''}
               </Text>
             </TouchableOpacity>
           </View>
-          <TouchableOpacity onPress={() => handleClearTime(3)}>
-            <Entypo name="eraser" size={24} color="black" />
-          </TouchableOpacity>
         </View>
 
         <View
@@ -465,7 +456,7 @@ export default function EditQRScreen({ route, navigation }) {
                   { borderRadius: 10, overflow: 'hidden', padding: 10, minWidth: 75 },
                 ]}
               >
-                {masaMasukKeempat ? timeFormat(masaMasukKeempat) : ''}
+                {masaMasukKeempat ? pickerTimeFormat(masaMasukKeempat) : ''}
               </Text>
             </TouchableOpacity>
           </View>
@@ -477,13 +468,10 @@ export default function EditQRScreen({ route, navigation }) {
                   { borderRadius: 10, overflow: 'hidden', padding: 10, minWidth: 75 },
                 ]}
               >
-                {masaKeluarKeempat ? timeFormat(masaKeluarKeempat) : ''}
+                {masaKeluarKeempat ? pickerTimeFormat(masaKeluarKeempat) : ''}
               </Text>
             </TouchableOpacity>
           </View>
-          <TouchableOpacity onPress={() => handleClearTime(4)}>
-            <Entypo name="eraser" size={24} color="black" />
-          </TouchableOpacity>
         </View>
 
         <View
@@ -518,27 +506,17 @@ export default function EditQRScreen({ route, navigation }) {
             enableLinearGradient={true}
           />
 
-          <View style={{ padding: 10 }}>
+          <View style={{ flexDirection: 'row', marginTop: 30 }}>
             <View style={{ paddingHorizontal: 10 }}>
-              <TouchableOpacity style={[styles.customButtton]} onPress={() => handleUpdate()}>
-                <Text style={{ color: 'white', fontWeight: '600' }}>Kemaskini Kod QR</Text>
+              <TouchableOpacity style={[styles.customButtton]} onPress={() => handleSimpan()}>
+                <Text style={{ color: 'white', fontWeight: '600' }}>Simpan Kod QR</Text>
               </TouchableOpacity>
             </View>
-          </View>
-
-          <View style={{ flexDirection: 'row', marginTop: 20 }}>
-            <TouchableOpacity
-              style={[styles.customButtton, { marginHorizontal: 10 }]}
-              onPress={() => navigation.navigate('CaptureImage', { ...routeData })}
-            >
-              <Text style={{ color: 'white', fontWeight: '600' }}>Kongsi PNG</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.customButtton, { marginHorizontal: 10 }]}
-              onPress={() => handleKongsi()}
-            >
-              <Text style={{ color: 'white', fontWeight: '600' }}>Kongsi PDF</Text>
-            </TouchableOpacity>
+            <View style={{ paddingHorizontal: 10 }}>
+              <TouchableOpacity style={[styles.customButtton]} onPress={() => handleKongsi()}>
+                <Text style={{ color: 'white', fontWeight: '600' }}>Kongsi Kod QR</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
 
@@ -581,4 +559,5 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 10,
   },
+  checkbox: {},
 });

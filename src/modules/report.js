@@ -61,7 +61,6 @@ export default function ReportScreen({ navigation }) {
             const final = (count / countObject) * 5;
 
             const aa = { ...a, photo_in: '', photo_out: '' };
-            // console.log('report aa : ', aa);
 
             return (
               <View key={i} style={styles.boxContainer}>
@@ -70,8 +69,8 @@ export default function ReportScreen({ navigation }) {
                     <View style={{ minWidth: minTitleBox }}>
                       <Text>{a.name}</Text>
                       <Text>
-                        {a.is_surau ? 'Surau' : 'Tandas'} {a.toilet_name}{' '}
-                        {a.gender === 1 ? '(L)' : '(P)'} -{' '}
+                        {a.is_office ? 'Pejabat' : a.is_surau ? 'Surau' : 'Tandas'} {a.toilet_name}{' '}
+                        {a.gender === 1 ? '(L)' : a.gender === 0 ? '' : '(P)'} -{' '}
                         <Text style={{ textTransform: 'capitalize' }}>{a.building} </Text>
                         Tingkat <Text style={{ textTransform: 'uppercase' }}>{a.floor}</Text>
                       </Text>

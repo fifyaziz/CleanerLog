@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, Octicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import React, { useState } from 'react';
 import {
@@ -55,21 +55,55 @@ export default function SenaraiTandasScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       {loading && <ActivityIndicator style={{ marginTop: 40 }} color={'black'} size={50} />}
-      <FlatList
-        data={list}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            onPress={() =>
-              navigation.navigate('EditQR', {
-                data: item,
-              })
-            }
-          >
-            <Item data={item} />
-          </TouchableOpacity>
-        )}
-        keyExtractor={(item) => item.id}
-      />
+      <View style={{ backgroundColor: 'white', height: Platform.OS === 'ios' ? '93%' : '90%' }}>
+        <FlatList
+          data={list}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate('CreateEditQR', {
+                  data: item,
+                  info: { screenType: 1, serviceAreaType: 1 },
+                })
+              }
+            >
+              <Item data={item} />
+            </TouchableOpacity>
+          )}
+          keyExtractor={(item) => item.id}
+        />
+      </View>
+
+      <View
+        style={{
+          justifyContent: 'center',
+          alignItems: 'center',
+          paddingTop: 10,
+          paddingBottom: 10,
+        }}
+      >
+        <TouchableOpacity
+          style={{
+            minWidth: '70%',
+            paddingHorizontal: 20,
+            paddingVertical: 10,
+            borderRadius: 10,
+            borderWidth: 1,
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: '#2a908f',
+          }}
+          onPress={() =>
+            navigation.navigate('CreateEditQR', {
+              info: { screenType: 0, serviceAreaType: 1 },
+            })
+          }
+        >
+          <Octicons name="diff-added" size={24} color="white" />
+          <Text style={{ paddingLeft: 10, color: 'white', fontWeight: '700' }}>Tambah</Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 }
@@ -78,6 +112,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginTop: StatusBar.currentHeight || 0,
+    backgroundColor: '#254252',
   },
   item: {
     backgroundColor: 'lightgreen',

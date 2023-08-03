@@ -2,14 +2,14 @@
   "expo": {
     "name": "Cleaner Log",
     "slug": "AwesomeProject",
-    "version": "1.0.2",
+    "version": "2.0.1",
     "orientation": "portrait",
     "icon": "./assets/cleanerqr.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/logo.png",
+      "image": "./assets/splash_one.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#254252"
     },
     "updates": {
       "fallbackToCacheTimeout": 0

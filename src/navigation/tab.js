@@ -15,13 +15,14 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import ScannerScreen from '../container/qrScanner';
-import ReportScreen from '../container/report';
-import ReportWeeklyScreen from '../container/reportWeekly';
-import RoomScreen from '../container/room';
-import SenaraiPekerjaScreen from '../container/senaraiPekerja';
-import SenaraiSurauScreen from '../container/senaraiSurau';
-import SenaraiTandasScreen from '../container/senaraiTandas';
+import ScannerScreen from '../modules/qrScanner';
+import ReportScreen from '../modules/report';
+import ReportWeeklyScreen from '../modules/reportWeekly';
+import RoomScreen from '../modules/room';
+import SenaraiOfficeScreen from '../modules/senaraiOffice';
+import SenaraiPekerjaScreen from '../modules/senaraiPekerja';
+import SenaraiSurauScreen from '../modules/senaraiSurau';
+import SenaraiTandasScreen from '../modules/senaraiTandas';
 
 const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
@@ -29,7 +30,7 @@ const Drawer = createDrawerNavigator();
 const windowWidth = Dimensions.get('window').width;
 const textSize = parseInt((windowWidth * 4) / 100);
 
-function DrawerScreen({ navigation }) {
+export function DrawerScreen({ navigation }) {
   const [isLogin, setIsLogin] = React.useState();
 
   const handleClearData = async () => {
@@ -134,6 +135,26 @@ function DrawerScreen({ navigation }) {
       )}
       {isLogin && (
         <Drawer.Screen
+          name="SenaraiOffice"
+          component={SenaraiOfficeScreen}
+          options={{
+            title: 'Senarai Pejabat',
+            headerStyle: { ...styles.header },
+            headerRight: () => (
+              <TouchableOpacity
+                style={{ paddingHorizontal: 20 }}
+                onPress={() => {
+                  navigation.navigate('CreateQROffice');
+                }}
+              >
+                <Octicons name="diff-added" size={24} color="black" />
+              </TouchableOpacity>
+            ),
+          }}
+        />
+      )}
+      {isLogin && (
+        <Drawer.Screen
           name="SenaraiPekerja"
           component={SenaraiPekerjaScreen}
           options={{
@@ -201,6 +222,9 @@ export default function TapNav({ navigation }) {
         },
         tabBarStyle: {
           height: Platform.OS === 'ios' ? (Platform.isPad == true ? 120 : 80) : 60,
+          // backgroundColor:'black',
+          borderTopWidth: 1,
+          borderTopColor: 'ligthgrey',
         },
         tabBarLabelPosition: 'below-icon',
         tabBarLabel: ({ focused, color }) => {
@@ -218,10 +242,13 @@ export default function TapNav({ navigation }) {
           return (
             <Text
               style={{
-                fontSize: focused ? textSize : textSize - 6,
-                fontWeight: focused ? '900' : 'normal',
-                marginBottom: 10,
-                color: color,
+                fontSize: focused
+                  ? textSize - 1
+                  : route.name === 'Scanner'
+                  ? textSize - 3
+                  : textSize - 4,
+                fontWeight: focused ? '900' : '500',
+                color: focused ? 'white' : color,
               }}
             >
               {screenName}
@@ -246,19 +273,75 @@ export default function TapNav({ navigation }) {
             <View
               style={{
                 position: 'absolute',
-                top: focused ? -20 : 0,
+                top: route.name === 'Scanner' ? -20 : 0,
                 left: 0,
                 right: 0,
                 bottom: 0,
                 justifyContent: 'center',
                 alignItems: 'center',
                 alignSelf: 'center',
+                backgroundColor: 'white',
+                borderTopRightRadius: route.name === 'Scanner' ? 20 : 0,
+                borderTopLeftRadius: route.name === 'Scanner' ? 20 : 0,
+                borderTopWidth:
+                  focused && route.name === 'Scanner' ? 0 : route.name !== 'Scanner' ? 0 : 1,
+                borderLeftWidth:
+                  focused && route.name === 'Scanner' ? 0 : route.name !== 'Scanner' ? 0 : 1,
+                borderRightWidth:
+                  focused && route.name === 'Scanner' ? 0 : route.name !== 'Scanner' ? 0 : 1,
+                backgroundColor: focused ? color : 'white',
               }}
             >
+              {focused ? (
+                <View
+                  style={{
+                    position: 'absolute',
+                    backgroundColor: color,
+                    bottom: -25,
+                    width: '100%',
+                    height: 30,
+                  }}
+                ></View>
+              ) : route.name === 'Scanner' ? (
+                <View
+                  style={{
+                    position: 'absolute',
+                    bottom: -25,
+                    width: '101%',
+                    height: 25,
+                    borderBottomWidth: 1,
+                    borderRightWidth: 1,
+                    borderLeftWidth: 1,
+                  }}
+                ></View>
+              ) : (
+                <View
+                  style={{
+                    position: 'absolute',
+                    bottom: -20,
+                    width: '100%',
+                    height: 20,
+                    borderBottomWidth: 1,
+                  }}
+                ></View>
+              )}
               <Ionicons
+                style={{
+                  borderTopWidth: 1,
+                  borderLeftWidth: 1,
+                  borderRightWidth: 1,
+                }}
                 name={iconName}
-                size={focused ? (Platform.isPad == true ? size + 60 : size + 20) : size}
-                color={color}
+                size={
+                  route.name === 'Scanner'
+                    ? Platform.isPad == true
+                      ? size + 60
+                      : focused
+                      ? size + 20
+                      : size + 15
+                    : size - 5
+                }
+                color={focused ? 'white' : color}
               />
             </View>
           );
@@ -272,7 +355,7 @@ export default function TapNav({ navigation }) {
         component={RoomScreen}
         options={{
           headerShown: true,
-          title: 'MTC Cleaner Monitoring',
+          title: '',
           headerStyle: { ...styles.header },
         }}
       />
@@ -281,7 +364,7 @@ export default function TapNav({ navigation }) {
         component={ScannerScreen}
         options={{
           headerShown: true,
-          title: 'MTC Cleaner Monitoring',
+          title: '',
           headerStyle: { ...styles.header },
         }}
       />
@@ -300,7 +383,7 @@ export default function TapNav({ navigation }) {
 
 const styles = StyleSheet.create({
   header: {
-    backgroundColor: 'white',
-    borderBottomWidth: 2,
+    backgroundColor: '#e9edc9',
+    borderBottomWidth: 0,
   },
 });

@@ -1,0 +1,21 @@
+[
+  {
+    "id": 0,
+    "datetime": "01/04/2023 06:19 am",
+    "api": "2023-04-01T06:19:05.224"
+  },
+  {
+    "id": 1,
+    "building": "mall",
+    "check_in": "2023-04-01T06:19:05.224",
+    "check_out": "2023-04-01T06:21:57.36",
+    "floor": "GF",
+    "gender": 1,
+    "id_staff": "3457",
+    "is_surau": false,
+    "name": "ADMIN",
+    "photo_in": null,
+    "photo_out": "",
+    "toilet_name": "WATSON"
+  }
+]

@@ -3,7 +3,7 @@ import { Picker } from '@react-native-picker/picker';
 import * as FileSystem from 'expo-file-system';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import {
   ActivityIndicator,
   SafeAreaView,
@@ -16,6 +16,13 @@ import {
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { dateAPIFormat, dateSlashFormat, dateTimeFormat, timeFormat } from '../config';
 import Supabase from '../config/initSupabase';
+
+const listBuilding = [
+  { id: 1, label: 'Mall', value: 'mall' },
+  { id: 2, label: 'Tower 1', value: 't1' },
+  { id: 3, label: 'Tower 2', value: 't2' },
+  { id: 4, label: 'Tower 3', value: 't3' },
+];
 
 export default function ReportWeeklyScreen({ navigation }) {
   const [lastFriday, setLastFriday] = useState();
@@ -48,7 +55,6 @@ export default function ReportWeeklyScreen({ navigation }) {
               .order('id', { ascending: false });
 
       setLoading(false);
-      console.error('erroeerr', error);
 
       if (dataFetch) {
         setListTop3(dataFetch);
@@ -59,84 +65,100 @@ export default function ReportWeeklyScreen({ navigation }) {
   }, [lastFriday, nextThursday, pickerBuilding]);
 
   const handleKongsi = useCallback(async () => {
+    setLoading(true);
     const before = `${dateAPIFormat(lastFriday)}T00:00:00.000`;
     const after = `${dateAPIFormat(nextThursday)}T23:59:00.000`;
 
-    const { data: dataFetch } =
-      pickerBuilding === 'all'
-        ? await Supabase.from('check_in_out')
-            .select()
-            .gte('check_in', before)
-            .lte('check_out', after)
-            .order('id', { ascending: false })
-        : await Supabase.from('check_in_out')
-            .select()
-            .eq('building', pickerBuilding)
-            .gte('check_in', before)
-            .lte('check_out', after)
-            .order('id', { ascending: false });
+    var temp = listTop3;
+    if (temp?.length === 0) {
+      try {
+        const { data: dataFetch, error } =
+          pickerBuilding === 'all'
+            ? await Supabase.from('check_in_out')
+                .select()
+                .gte('check_in', before)
+                .lte('check_out', after)
+                .order('id', { ascending: false })
+            : await Supabase.from('check_in_out')
+                .select()
+                .eq('building', pickerBuilding)
+                .gte('check_in', before)
+                .lte('check_out', after)
+                .order('id', { ascending: false });
 
-    const html =
-      dataFetch &&
-      `<html>
-            <head>
-              <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
-            </head>
-            <style>
-            table {
-              font-family: arial, sans-serif;
-              border-collapse: collapse;
-              width: 100%;
-            }
-            td, th {
-              border: 1px solid #dddddd;
-              padding: 8px;
-              font-size: 14px;
-            }
-            </style>
-            <body>
-            
-            <h2><b><u> MTC Report - Detailed Clock Report </u></b></h2>
+        if (dataFetch) {
+          temp = dataFetch;
+        }
+      } catch (e) {
+        console.error('erer', e);
+      }
+    }
 
-            <table>
-            <tr>
-              <th>No.</th>
-              <th style="text-align: left;">Name</th>
-              <th style="text-align: left;">ID</th>
-              <th style="text-align: left;">Service Area</th>
-              <th>Check-In</th>
-              <th>Check-Out</th>
-            </tr>
-            ${dataFetch
-              ?.map(
-                (a, i) => `<tr>
-            <td style="text-align: center;">${i + 1}</td>
-            <td>${a.name}</td>
-            <td>${a.id_staff}</td>
-            <td>
-            ${a.toilet_name} LEVEL ${a.floor} ${a.gender === 1 ? '(L)' : '(P)'}
-            </td>
-            <td style="text-align: center;">${dateTimeFormat(a.check_in)}</td>
-            <td style="text-align: center;">${dateTimeFormat(a.check_out)}</td>
-            </tr>`
-              )
-              .join(' ')}
+    if (temp.length > 0) {
+      const html = `<html>
+              <head>
+                <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+              </head>
+              <style>
+              table {
+                font-family: arial, sans-serif;
+                border-collapse: collapse;
+                width: 100%;
+              }
+              td, th {
+                border: 1px solid #dddddd;
+                padding: 8px;
+                font-size: 14px;
+              }
+              </style>
+              <body>
+              
+              <h2><b><u> MTC Report - Detailed Clock Report </u></b></h2>
+  
+              <table>
+              <tr>
+                <th>No.</th>
+                <th style="text-align: left;">Name</th>
+                <th style="text-align: left;">ID</th>
+                <th style="text-align: left;">Service Area</th>
+                <th>Check-In</th>
+                <th>Check-Out</th>
+              </tr>
+              ${temp
+                ?.map(
+                  (a, i) => `<tr>
+              <td style="text-align: center;">${i + 1}</td>
+              <td>${a.name}</td>
+              <td>${a.id_staff}</td>
+              <td> <span style="text-transform: capitalize;">${a.building} - </span>
+              ${a.is_office ? 'Office' : a.is_surau ? 'Surau' : 'Toilet'} ${a.toilet_name} LEVEL ${
+                    a.floor
+                  } ${a.gender == 0 ? '' : a.gender === 1 ? '(L)' : '(P)'}
+              </td>
+              <td style="text-align: center;">${dateTimeFormat(a.check_in)}</td>
+              <td style="text-align: center;">${dateTimeFormat(a.check_out)}</td>
+              </tr>`
+                )
+                .join(' ')}
+  
+            </table>
+  
+              </body>
+            </html>`;
 
-          </table>
+      const { uri } = await Print.printToFileAsync({ html, base64: true });
 
-            </body>
-          </html>`;
+      const pdfName = `${FileSystem.documentDirectory}Laporan_Mingguan.pdf`;
+      await FileSystem.moveAsync({
+        from: uri,
+        to: pdfName,
+      });
 
-    const { uri } = await Print.printToFileAsync({ html, base64: true });
+      Sharing.shareAsync(pdfName, { UTI: '.pdf', mimeType: 'application/pdf' });
+    }
 
-    const pdfName = `${FileSystem.documentDirectory}Laporan_Mingguan.pdf`;
-    await FileSystem.moveAsync({
-      from: uri,
-      to: pdfName,
-    });
-
-    Sharing.shareAsync(pdfName, { UTI: '.pdf', mimeType: 'application/pdf' });
-  }, [pickerBuilding, lastFriday, nextThursday]);
+    setLoading(false);
+  }, [listTop3, pickerBuilding, lastFriday, nextThursday]);
 
   const handleConfirmDatePicker = useCallback(
     (date) => {
@@ -166,14 +188,16 @@ export default function ReportWeeklyScreen({ navigation }) {
     setNextThursday(`${dateAPIFormat(valThurs)}T23:59:00.000`);
 
     setListTop3([]);
+  }, []);
 
+  useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
         <TouchableOpacity
           style={{
             paddingHorizontal: 20,
           }}
-          onPress={async () => {
+          onPress={() => {
             handleKongsi();
           }}
         >
@@ -181,7 +205,7 @@ export default function ReportWeeklyScreen({ navigation }) {
         </TouchableOpacity>
       ),
     });
-  }, []);
+  }, [navigation, lastFriday, nextThursday, listTop3, pickerBuilding]);
 
   return (
     <SafeAreaView
@@ -231,10 +255,9 @@ export default function ReportWeeklyScreen({ navigation }) {
               itemStyle={{ height: 130, padding: 0 }}
             >
               <Picker.Item label="Semua Bangunan" value="all" />
-              <Picker.Item label="Mall" value="mall" />
-              <Picker.Item label="Tower 1" value="t1" />
-              <Picker.Item label="Tower 2" value="t2" />
-              <Picker.Item label="Tower 3" value="t3" />
+              {listBuilding.map((a) => (
+                <Picker.Item key={a.id} label={a.label} value={a.value} />
+              ))}
             </Picker>
           </View>
           <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
@@ -320,8 +343,8 @@ export default function ReportWeeklyScreen({ navigation }) {
                         <View>
                           <Text>{a.name}</Text>
                           <Text>
-                            {a.is_surau ? 'Surau' : 'Tandas'} {a.toilet_name}{' '}
-                            {a.gender === 1 ? '(L)' : '(P)'} -{' '}
+                            {a.is_office ? 'Pejabat' : a.is_surau ? 'Surau' : 'Tandas'}{' '}
+                            {a.toilet_name} {a.gender == 0 ? '' : a.gender === 1 ? '(L)' : '(P)'} -{' '}
                             <Text style={{ textTransform: 'capitalize' }}>{a.building} </Text>
                             Tingkat <Text style={{ textTransform: 'uppercase' }}>{a.floor}</Text>
                           </Text>

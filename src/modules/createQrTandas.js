@@ -23,7 +23,7 @@ import Supabase from '../config/initSupabase';
 
 const windowWidth = Dimensions.get('screen').width;
 
-export default function CreateQRSurauScreen({ navigation }) {
+export default function CreateQRTandasScreen({ navigation }) {
   const refQR = useRef();
 
   const [inputNama, setInputNama] = useState();
@@ -82,18 +82,19 @@ export default function CreateQRSurauScreen({ navigation }) {
   );
 
   const handleSimpan = useCallback(async () => {
-    const { data: dataFetch, error: errorFetch } = await Supabase.from('service_area')
+    const { data: dataFetch, error: errorFetch } = await Supabase.from('tandas')
       .select('name, floor, building, gender')
       .eq('name', inputNama)
       .eq('floor', inputTingkat)
       .eq('building', pickerMenara)
       .eq('gender', radioJantina)
-      .eq('is_surau', true);
+      .eq('is_surau', false)
+      .eq('is_office', false);
 
     if (dataFetch?.length > 0) {
-      ToastAndroid.show('Maklumat surau ini telah wujud.!', ToastAndroid.TOP);
+      ToastAndroid.show('Maklumat tandas ini telah wujud.!', ToastAndroid.TOP);
     } else if (dataFetch?.length === 0) {
-      const { status, error } = await Supabase.from('service_area').insert({
+      const { status, error } = await Supabase.from('tandas').insert({
         name: inputNama,
         floor: inputTingkat,
         building: pickerMenara,
@@ -106,11 +107,12 @@ export default function CreateQRSurauScreen({ navigation }) {
         third_out: masaKeluarKetiga,
         fourth_in: masaMasukKeempat,
         fourth_out: masaKeluarKeempat,
-        is_surau: true,
+        is_surau: false,
+        is_office: false,
       });
       if (status === 201) {
         navigation.pop();
-        ToastAndroid.show('Maklumat surau berjaya disimpan.!', ToastAndroid.BOTTOM);
+        ToastAndroid.show('Maklumat tandas berjaya disimpan.!', ToastAndroid.BOTTOM);
       }
       if (error) {
         console.error('error', error);
@@ -156,12 +158,12 @@ export default function CreateQRSurauScreen({ navigation }) {
             </style>
             <body style="text-align: center;">
               <h1 style="font-size: 50px; font-family: Helvetica Neue; font-weight: normal; text-transform: capitalize">
-                Surau ${inputNama || ''} ${
+                Tandas ${inputNama || ''} ${
           radioJantina === 1 ? 'Lelaki' : radioJantina === 2 ? 'Perempuan' : ''
         }
               </h1>
               <h2 style="font-size: 50px; font-family: Helvetica Neue; font-weight: normal; text-transform: capitalize">
-                ${pickerMenara || ''} ${inputTingkat ? ', Tingkat ' + inputTingkat : ''}
+                ${pickerMenara || ''} ${inputTingkat ? ', Tingkat' + inputTingkat : ''}
               </h2>
               <img src="data:image/gif;base64, ${data}"/>
 
@@ -255,11 +257,11 @@ export default function CreateQRSurauScreen({ navigation }) {
     <ScrollView>
       <View style={styles.container}>
         <Text style={{ fontSize: 15, fontWeight: '600', paddingTop: 30, paddingHorizontal: 10 }}>
-          Maklumat Surau
+          Maklumat Tandas
         </Text>
         <View style={{ flexDirection: 'row', paddingTop: 10 }}>
           <TextInput
-            placeholder="Nama Surau"
+            placeholder="Nama Tandas"
             style={[styles.textInput, { width: '55%', marginLeft: 10, marginRight: 5 }]}
             autoCapitalize="none"
             value={inputNama}

@@ -41,7 +41,6 @@ export default function ModalLogin() {
         const getValue = await AsyncStorage.getItem('@storage_key');
         setOpenModal(!getValue);
       } catch (e) {
-        222;
         console.error('euff', e);
       }
     };

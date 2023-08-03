@@ -13,7 +13,7 @@ const windowWidth = Dimensions.get('window').width;
 const iconSize = parseInt((windowWidth * 10) / 100);
 const color = 'grey';
 
-export default function CleaningScreen({ navigation }) {
+export default function CheckInSummaryScreen({ navigation }) {
   const [snackbarMessage, setSnackbarMessage] = useState(true);
 
   return (
@@ -36,7 +36,7 @@ export default function CleaningScreen({ navigation }) {
         <Ionicons name="md-trash-sharp" size={iconSize} color={color} />
       </View>
 
-      <TouchableOpacity style={styles.newButton} onPress={() => navigation.navigate('Scanner')}>
+      <TouchableOpacity style={styles.newButton} onPress={() => navigation.navigate('QRScanner')}>
         <Text style={[styles.sectionDescription, { color: '#fff', fontWeight: '900' }]}>
           Kembali ke Imbas Kamera
         </Text>
@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
   },
   newButton: {
     marginTop: 40,
-    backgroundColor: 'deepskyblue',
+    backgroundColor: '#2a908f',
     paddingVertical: 10,
     paddingHorizontal: '12%',
     borderRadius: 10,

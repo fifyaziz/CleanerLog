@@ -1,12 +1,15 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useIsFocused } from '@react-navigation/native';
 import { useContext, useState } from 'react';
-import { Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Modal, Pressable, StyleSheet, Text, TextInput, ToastAndroid, View } from 'react-native';
 import AuthContext from '../config/AuthContext';
 import Supabase from '../config/initSupabase';
 
-export default function LoginScreen({ navigation }) {
+export default function LoginScreen({ onClose, navigation, route }) {
   const [pass, setPassword] = useState();
   const [error, setError] = useState();
+  const [modalVisible, setModalVisible] = useState(false);
+  const isFocused = useIsFocused();
 
   const { fixtureMode } = useContext(AuthContext);
 
@@ -15,30 +18,64 @@ export default function LoginScreen({ navigation }) {
     setPassword(e);
   };
 
+  // const handleClose = () => {
+  //   navigation.navigate('Report');
+  // };
+  const handleClose = () => {
+    setModalVisible(false);
+  };
+
   const handleSubmit = async (e) => {
-    let data = [1];
-    if (!fixtureMode) {
-      const { data: dataFetch } = await Supabase.from('password')
-        .select('pass')
-        .eq('pass', pass.toString());
-      data = dataFetch;
-    }
-    if (data?.length === 1) {
+    if (fixtureMode) {
       try {
         await AsyncStorage.setItem('@MySuperPass', pass);
+        navigation.pop();
         navigation.navigate('DrawerRight');
       } catch (error) {
         console.error(error);
       }
     } else {
-      try {
+      const { data: dataFetch } = await Supabase.from('password')
+        .select('pass')
+        .eq('pass', pass.toString());
+      if (dataFetch?.length === 1) {
+        try {
+          await AsyncStorage.setItem('@MySuperPass', pass);
+        } catch (error) {
+          console.error(error);
+        }
+        ToastAndroid.show('Menu telah dibuka', ToastAndroid.BOTTOM);
+        navigation.navigate('ReportDaily');
+      } else {
         setError('Password salah.');
-        await AsyncStorage.removeItem('@MySuperPass');
-      } catch (e) {
-        console.error(e);
+        try {
+          return await AsyncStorage.removeItem('@MySuperPass');
+        } catch (e) {
+          console.error(e);
+        }
       }
     }
   };
+
+  // useEffect(() => {
+  //   const getAsync = async () => {
+  //     try {
+  //       const value = await AsyncStorage.getItem('@MySuperPass');
+  //       const routes = navigation.getState()?.routes;
+  //       const prevRoute = routes;
+
+  //       // if(value ){
+  //       //   navigation.navigate('Dashboard');
+  //       // }else{
+  //       //   navigation.navigate('Report');
+  //       // }
+  //     } catch (error) {
+  //       console.error(error);
+  //     }
+  //   };
+
+  //   getAsync();
+  // }, [isFocused]);
 
   return (
     // <View style={styles.centeredView}>
@@ -64,14 +101,8 @@ export default function LoginScreen({ navigation }) {
             >
               <Text style={{ color: 'white', fontWeight: 'bold' }}>Tutup</Text>
             </Pressable>
-            <Pressable
-              style={[styles.button, { backgroundColor: pass ? 'deepskyblue' : 'lightgrey' }]}
-              onPress={() => handleSubmit()}
-              disabled={!!!pass}
-            >
-              <Text style={{ color: 'white', fontWeight: 'bold' }} disabled={!pass}>
-                Hantar
-              </Text>
+            <Pressable style={[styles.button, styles.buttonClose]} onPress={() => handleSubmit()}>
+              <Text style={{ color: 'white', fontWeight: 'bold' }}>Hantar</Text>
             </Pressable>
           </View>
         </View>

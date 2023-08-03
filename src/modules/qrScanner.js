@@ -2,7 +2,6 @@ import { FontAwesome5, Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
-import * as React from 'react';
 import { useEffect, useState } from 'react';
 import {
   Alert,
@@ -28,7 +27,7 @@ export default function QRScannerScreen() {
   const [isVisible, setIsVisible] = useState(false);
   const [isRetryButton, setIsRetryButton] = useState(false);
 
-  const [checkInName, setCheckInName] = useState();
+  const [name, setName] = useState();
   const [modalVisible, setModalVisible] = useState(false);
   const [modalData, setModalData] = useState();
 
@@ -40,15 +39,11 @@ export default function QRScannerScreen() {
     const correctData = data.includes('name');
 
     if (correctData) {
-      if (checkInName) {
+      if (name) {
         try {
-          const getData = await AsyncStorage.getItem('@store_data');
-          if (
-            JSON.parse(getData)?.name === JSON.parse(data).name &&
-            JSON.parse(getData)?.floor === JSON.parse(data).floor &&
-            JSON.parse(getData)?.building === JSON.parse(data).building
-          ) {
-            navigation.navigate('CheckInOut', data);
+          const getData = await AsyncStorage.getItem('@storage_data');
+          if (JSON.parse(getData)?.name === JSON.parse(data).name) {
+            navigation.navigate('Name', data);
           } else {
             setScanned(true);
             setModalVisible(!modalVisible);
@@ -59,7 +54,7 @@ export default function QRScannerScreen() {
           console.error('eufs', e);
         }
       } else {
-        navigation.navigate('CheckInOut', data);
+        navigation.navigate('Name', data);
       }
     } else {
       Alert.alert('Kod QR tidak sah');
@@ -97,9 +92,9 @@ export default function QRScannerScreen() {
   useFocusEffect(() => {
     const fetchData = async () => {
       try {
-        const storeCurrentCheckIn = await AsyncStorage.getItem('@store_current_checkin');
-        const currentCheckInInfo = JSON.parse(storeCurrentCheckIn);
-        setCheckInName(currentCheckInInfo?.name);
+        // await AsyncStorage.clear();
+        const getData = await AsyncStorage.getItem('@storage_checkin');
+        setName(getData);
       } catch (e) {
         console.error('eufs', e);
       }
@@ -138,7 +133,7 @@ export default function QRScannerScreen() {
               elevation: 2,
             }}
           >
-            {!checkInName ? (
+            {!name ? (
               <View
                 style={{
                   flex: 1,
@@ -176,7 +171,7 @@ export default function QRScannerScreen() {
                 <Text
                   style={{
                     fontSize: 25,
-                    fontWeight: '500',
+                    fontWeight: '800',
                     color: '#f9982f',
                   }}
                 >
@@ -184,14 +179,14 @@ export default function QRScannerScreen() {
                 </Text>
                 <Text
                   style={{
-                    fontSize: 35,
-                    fontWeight: '800',
+                    fontSize: 30,
+                    fontWeight: '600',
                     color: '#e37239',
                   }}
                 >
-                  {checkInName || '(Nama)'}
+                  {name || '(Nama)'}
                 </Text>
-                <Text style={{ marginTop: 25, color: 'white', fontWeight: '600' }}>
+                <Text style={{ marginTop: 15, color: 'white', fontWeight: '600' }}>
                   Sila imbas QR untuk log keluar
                 </Text>
               </View>
@@ -295,7 +290,11 @@ export default function QRScannerScreen() {
                 <TouchableOpacity
                   onPress={() => {
                     setOpenMenu(!openMenu);
-                    navigation.navigate('ListRoom');
+                    if (name) {
+                      navigation.navigate('Room');
+                    } else {
+                      navigation.navigate('NewRoom');
+                    }
                   }}
                 >
                   <View
@@ -379,37 +378,16 @@ export default function QRScannerScreen() {
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
             <Text style={[styles.modalText, { fontSize: 18, fontWeight: 'bold' }]}>
-              Masalah Kod QR
+              Kod QR tidak sama
             </Text>
-            <Text style={styles.modalText}>Anda telah Log Masuk di</Text>
-            <Text style={{ fontWeight: 'bold', backgroundColor: 'lightgrey', padding: 10 }}>
-              {modalData?.name}, {modalData?.building}{' '}
-              {modalData?.floor && `Tingkat ${modalData?.floor}`}
-            </Text>
-            <View style={{ marginTop: 35 }}>
-              <Text style={[styles.modalText, { fontSize: 15, fontWeight: '500' }]}>
-                Anda ingin teruskan sesi sebelum ini?
+            <Text style={styles.modalText}>
+              Anda telah Log Masuk di{' '}
+              <Text style={{ fontWeight: 'bold' }}>
+                {modalData?.name}, {modalData?.building} Tingkat {modalData?.floor}
               </Text>
-            </View>
+            </Text>
 
             <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-              <TouchableOpacity
-                style={{
-                  ...styles.openButton,
-                  borderWidth: 1,
-                  borderColor: 'red',
-                  backgroundColor: 'white',
-                  marginHorizontal: 10,
-                }}
-                onPress={async () => {
-                  setModalVisible(!modalVisible);
-                  setScanned(false);
-                  await AsyncStorage.clear();
-                  navigation?.navigate('QRScanner');
-                }}
-              >
-                <Text style={[styles.textStyle, { color: 'red' }]}>Log Keluar</Text>
-              </TouchableOpacity>
               <TouchableOpacity
                 style={{
                   ...styles.openButton,
@@ -418,12 +396,12 @@ export default function QRScannerScreen() {
                   backgroundColor: 'white',
                   marginHorizontal: 10,
                 }}
-                onPress={async () => {
+                onPress={() => {
                   setModalVisible(!modalVisible);
                   setScanned(false);
                 }}
               >
-                <Text style={[styles.textStyle, { color: '#2196F3' }]}>Teruskan</Text>
+                <Text style={[styles.textStyle, { color: '#2196F3' }]}>Kembali</Text>
               </TouchableOpacity>
             </View>
           </View>
