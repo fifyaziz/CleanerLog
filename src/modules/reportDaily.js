@@ -155,7 +155,7 @@ export default function ReportDailyScreen({ navigation }) {
     <View style={styles.container}>
       <View
         style={[
-          { display: 'flex', flexDirection: 'row', alignItems: 'center', paddingHorizontal: '10%' },
+          { display: 'flex', flexDirection: 'row', alignItems: 'center', paddingHorizontal: '8%' },
         ]}
       >
         <View style={{}}>
@@ -199,7 +199,7 @@ export default function ReportDailyScreen({ navigation }) {
       )}
 
       {modalFilter && (
-        <View style={{width: '80%'}}>
+        <View style={{ width: '80%' }}>
           <View
             style={[
               {
@@ -345,9 +345,14 @@ export default function ReportDailyScreen({ navigation }) {
               <View key={i} style={styles.boxContainer}>
                 <TouchableOpacity onPress={() => navigation.navigate('ReportDetails', a)}>
                   <View
-                    style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}
+                    style={{
+                      width: windowWidth * 0.85,
+                      flexDirection: 'row',
+                      justifyContent: 'flex-start',
+                      alignItems: 'center',
+                    }}
                   >
-                    <View style={{ minWidth: '80%' }}>
+                    <View style={{ maxWidth: windowWidth * 0.70 }}>
                       <Text style={{ fontWeight: '800', fontSize: 16 }}>{a.name}</Text>
                       <Text style={{ fontWeight: '500', fontSize: 15 }}>
                         {a.is_office ? 'Pejabat' : a.is_surau ? 'Surau' : 'Tandas'} {a.toilet_name}{' '}
@@ -359,16 +364,25 @@ export default function ReportDailyScreen({ navigation }) {
                         a.check_out
                       )}`}</Text>
                     </View>
-                    <MaterialIcons
-                      name="filter-1"
-                      size={24}
-                      color={a.photo_in ? 'black' : 'lightgrey'}
-                    />
-                    <MaterialIcons
-                      name="filter-2"
-                      size={24}
-                      color={a.photo_out ? 'black' : 'lightgrey'}
-                    />
+                    <View
+                      style={{
+                        display: 'flex',
+                        flexGrow: 1,
+                        flexDirection: 'row',
+                        justifyContent: 'flex-end',
+                      }}
+                    >
+                      <MaterialIcons
+                        name="filter-1"
+                        size={24}
+                        color={a.photo_in ? 'black' : 'lightgrey'}
+                      />
+                      <MaterialIcons
+                        name="filter-2"
+                        size={24}
+                        color={a.photo_out ? 'black' : 'lightgrey'}
+                      />
+                    </View>
                   </View>
                 </TouchableOpacity>
               </View>

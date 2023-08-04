@@ -193,7 +193,7 @@ function TabScreen({ route, navigation }) {
     <SafeAreaView style={[styles.container]}>
       <View style={{ padding: 20 }}>
         {loading && <ActivityIndicator style={{ marginTop: 40 }} color={'black'} size={50} />}
-        <View style={{ flexDirection: 'row' }}>
+        <View style={{ flexDirection: 'row', marginBottom: 10 }}>
           <TouchableOpacity
             style={{
               borderWidth: 1,
